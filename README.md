@@ -29,7 +29,8 @@ stow -n -v alacritty                     # dry run
 ## Not tracked
 
 - `fish_variables` — fish universal variables, host-specific and mode 0600.
-- `nvim/lazy/` — plugin checkouts. `lazy-lock.json` *is* tracked so versions pin.
+- Plugin checkouts, which lazy.nvim keeps in `~/.local/share/nvim/lazy/` and so
+  are outside this repo anyway. `lazy-lock.json` *is* tracked so versions pin.
 
 ## Host
 
