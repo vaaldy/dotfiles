@@ -1,0 +1,8 @@
+# machine-generated / host-specific state
+fish_variables
+*.bak
+*.swp
+
+# editor + plugin state (lazy-lock.json is tracked on purpose)
+nvim/.config/nvim/lazy/
+nvim/.config/nvim/plugin/
