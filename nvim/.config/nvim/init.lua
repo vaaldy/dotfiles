@@ -1,16 +1,10 @@
--- ============================================================================
--- OPTIONS
--- ============================================================================
+-- ~/.config/nvim/init.lua
+-- Terminal-only setup, ported from macOS. Leader is <Space>; nothing here binds
+-- Alt, and niri binds everything on Mod (Super), so the two never collide.
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
-vim.opt.number = true
-vim.opt.relativenumber = true
-
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
-
-vim.opt.clipboard = "unnamedplus" -- sync with system clipboard (needs wl-clipboard)
-
--- no plugins, no keymaps yet.
+require("config.options")
+require("config.lazy")
+require("config.keymaps")
