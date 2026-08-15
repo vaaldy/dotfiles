@@ -85,8 +85,6 @@ bindings = [
 { key = "B", mods = "Control|Shift", action = "SearchBackward" },
 { key = "C", mods = "Control|Shift", mode = "Vi", action = "ClearSelection" },
 { key = "Key0", mods = "Control", action = "ResetFontSize" },
-# Cmd+Q (physical Alt+Q, which keyd sends as Ctrl+Q) — quit the terminal, as on macOS
-{ key = "Q", mods = "Control", action = "Quit" },
 ]
 
 
