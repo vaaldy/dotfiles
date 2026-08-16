@@ -52,24 +52,25 @@ binds {
     Mod+Down                            { focus-window-down; }
     Mod+J                               { focus-window-down; }
 
-    Mod+CTRL+Left                       { move-column-left; }
-    Mod+CTRL+A                          { move-column-left; }
-    Mod+CTRL+Right                      { move-column-right; }
-    Mod+CTRL+D                          { move-column-right; }
-    Mod+CTRL+UP                         { move-window-up; }
-    Mod+CTRL+K                          { move-window-up; }
-    Mod+CTRL+Down                       { move-window-down; }
-    Mod+CTRL+J                          { move-window-down; }
+    Mod+Shift+Left                       { move-column-left; }
+    Mod+Shift+A                          { move-column-left; }
+    Mod+Shift+Right                      { move-column-right; }
+    Mod+Shift+D                          { move-column-right; }
+    Mod+Shift+UP                         { move-window-up; }
+    Mod+Shift+K                          { move-window-up; }
+    Mod+Shift+Down                       { move-window-down; }
+    Mod+Shift+J                          { move-window-down; }
 
     Mod+Home                            { focus-column-first; }
     Mod+End                             { focus-column-last; }
     Mod+CTRL+Home                       { move-column-to-first; }
     Mod+CTRL+End                        { move-column-to-last; }
 
-    Mod+Shift+A                      { focus-monitor-left; }
-    Mod+Shift+D                     { focus-monitor-right; }
-    Mod+Shift+UP                        { focus-monitor-up; }
-    Mod+Shift+Down                      { focus-monitor-down; }
+// Ignore these since im a single monitor swine
+    //Mod+Shift+A                     { focus-monitor-left; }
+    //Mod+Shift+D                     { focus-monitor-right; }
+    //Mod+Shift+UP                        { focus-monitor-up; }
+    //Mod+Shift+Down                      { focus-monitor-down; }
 
     Mod+Shift+CTRL+Left                 { move-column-to-monitor-left; }
     Mod+Shift+CTRL+Right                { move-column-to-monitor-right; }

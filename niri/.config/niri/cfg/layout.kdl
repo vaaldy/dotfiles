@@ -4,10 +4,14 @@
 
         background-color "transparent" // <- needed for noctalia-shell to set wallpaper
 
+        // Mod+R cycles forward through these, Mod+Shift+R cycles back.
+        // 1.0 = full width of the working area (still inset by `gaps`, so it
+        // looks like maximize-column rather than edge-to-edge).
         preset-column-widths {
             proportion 0.25
             proportion 0.5
             proportion 0.75
+            proportion 1.0
         }
 
         struts {}
