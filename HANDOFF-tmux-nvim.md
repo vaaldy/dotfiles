@@ -52,8 +52,8 @@ Ctrl at the keyd level. It was **fully reverted** — see §6. Do not re-attempt
 | Neovim | v0.12.4 (LuaJIT 2.1) |
 | tmux | **NOT INSTALLED**. Available as `cachyos-extra-v3/tmux 3.7_b-1.1` |
 | AUR helper | `paru` 2.1.0 (installed and working) |
-| Hardware | Intel Core Ultra 7 255H, Arc 140T iGPU + RTX 5060 Mobile, 15GB RAM |
-| Display | eDP-1, 2880x1800 @120Hz, **scale 1.75** (HiDPI — affects font sizing) |
+| Hardware | AMD desktop, single `amdgpu` — specifics TBD |
+| Display | desktop monitor, mode/scale **TBD** (`niri msg outputs`) — affects font sizing |
 
 ### fish is not POSIX
 The login shell is fish. Anything you write that assumes bash/zsh syntax will break:

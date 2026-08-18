@@ -11,14 +11,19 @@ input {
         numlock // Enable numlock on startup
     }
 
-    touchpad {
-        tap // Enable tap-to-click
-        natural-scroll // Enable natural (macOS-style) scrolling
-    }
-
+    // No touchpad on this machine. Of the two settings the laptop's touchpad block
+    // carried, only one has a desktop counterpart:
+    //   tap            -> nothing to port, the mouse has real buttons
+    //   natural-scroll -> below, deliberately left off
+    // Nothing to port for gestures either: workspace switching is on keybinds
+    // (Mod+1-9, Mod+Tab, Mod+WheelScrollUp/Down), never was on touchpad swipes.
     mouse {
-        // If you want to disable Mouse Acceleration,
-        // uncomment the lines below.
+        // natural-scroll inverts the wheel to match the macOS trackpad feel. It also
+        // flips niri's WheelScrollUp/Down binds, so Mod+wheel workspace switching
+        // reverses with it — enable both or neither.
+        //natural-scroll
+
+        // Uncomment to disable mouse acceleration.
         //accel-profile "flat"
         //accel-speed 0.0
     }

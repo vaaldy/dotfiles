@@ -48,3 +48,17 @@ git switch macos
 ```
 
 Rerun `install-macos.sh` to relink the configuration. Existing files are moved to timestamped backups before linking.
+
+## Host (`pc`)
+
+AMD desktop, CachyOS. Single AMD GPU — none of the iGPU/dGPU render-node
+handling on `main` applies here. Exact CPU/GPU/monitor not yet recorded; run
+`lspci -nn | grep -Ei 'vga|3d'` and `niri msg outputs` and fill them in.
+
+Two things left tuned for the laptop that you may want to change once the
+monitor is known:
+
+- `alacritty.toml` `font.size = 10` — sized for a 1.75-scale HiDPI panel, likely
+  too small at scale 1.
+- `niri/cfg/display.kdl` — every output block is commented out, so niri
+  autodetects. Uncomment and set the real mode/scale if it guesses wrong.
