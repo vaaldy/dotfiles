@@ -23,9 +23,17 @@ input {
         // reverses with it — enable both or neither.
         //natural-scroll
 
-        // Uncomment to disable mouse acceleration.
-        //accel-profile "flat"
-        //accel-speed 0.0
+        // Pointer acceleration OFF. "flat" means output is a constant multiple of
+        // the mouse's own counts — no speed-dependent curve, so a fast flick and a
+        // slow drag of the same physical distance move the cursor equally far.
+        // The alternative is "adaptive" (libinput's default, accelerated).
+        accel-profile "flat"
+
+        // Sensitivity, range -1.0 to 1.0. Under the flat profile this is a plain
+        // linear multiplier: 0.0 is 1:1 with the sensor, negative is slower,
+        // positive is faster. Tune this, not the mouse's DPI — DPI lives in the
+        // mouse's own firmware and libratbag/Piper can't reach a Compx VXE.
+        accel-speed 0.0
     }
 
     focus-follows-mouse // Automatically focus windows under the mouse pointer
