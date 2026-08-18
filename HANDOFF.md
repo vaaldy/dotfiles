@@ -52,26 +52,31 @@ the difference.
 | Display manager | SDDM |
 | Shell UI | noctalia |
 | AUR helper | `paru` |
-| Display | eDP-1, 2880x1800 @120Hz, **scale 1.75** |
+| Display | desktop monitor — name/mode/scale **TBD, run `niri msg outputs`** |
 | Filesystem | btrfs + snapper + snap-pac + limine-snapper-sync |
 
-### GPUs — both present, this matters
+### GPU — single AMD, no hybrid graphics
+
+This machine is AMD. Unlike the laptop on `main` there is no second GPU, so none of the
+iGPU/dGPU render-node juggling applies: `/dev/dri/renderD128` is *the* GPU, `amdgpu`
+drives it, and nothing needs to be told which card to pick.
+
+Fill in the specifics before relying on them:
+
+```fish
+lspci -nn | grep -Ei 'vga|3d|display'
+ls -l /dev/dri/by-path/
+```
 
 | PCI | Device | card | render node |
 |---|---|---|---|
-| `0000:00:02.0` | Intel Arc 140T (iGPU, drives eDP-1) | card2 | **renderD129** |
-| `0000:01:00.0` | NVIDIA RTX 5060 Mobile | card1 | **renderD128** |
+| TBD | AMD (`amdgpu`) | TBD | TBD |
 
-Note the NVIDIA took `renderD128`, the *first* node — so anything that naively picks
-"the first GPU" gets the discrete one.
+### Thermals
 
-### Thermals — normal, do not alarm the user
-
-Idle: package ~57 °C against a 105 °C limit. NVMe ~51 °C (crit 88 °C). **Fans reading
-0 RPM at these temperatures is correct** — the machine runs fanless below ~60-70 °C.
-Additionally `pwm1` and `acpi_fan` report `N/A` and the sensor chip is `hp-isa-0000`
-(`hp_wmi`), so 0 RPM may mean "not reported" rather than "not spinning". Only treat it
-as a problem if temps are above ~75 °C *and* fans read zero.
+Desktop cooling, so the laptop's "0 RPM is correct" caveat does not carry over — on this
+box fans reading zero under load *is* worth investigating. Baseline idle temps not yet
+recorded; take them with `sensors` before calling anything abnormal.
 
 ### fish is not POSIX
 
@@ -175,15 +180,10 @@ and merged. The corrected form is `DisplayServer=wayland` alone — the `[Waylan
 section is optional. **Unverified.** Recovery: `Ctrl-Alt-F3`, log in, delete the file,
 reboot. Or edit the limine entry with `e` and append `systemd.unit=multi-user.target`.
 
-**Motivation, for context:** an X server from SDDM's greeter
-(`/usr/lib/Xorg ... -auth /run/sddm/xauth_* -noreset`) survives login and holds the
-RTX 5060 at P5, ~11 W, 0% utilisation, all session. Real finding, but the machine idles
-at 57 °C regardless. Not worth another boot-breaking attempt.
-
-**Lower-risk alternative if the dGPU is revisited:** `debug { ignore-drm-device
-"/dev/dri/renderD128" }` in niri. Worst case a display doesn't light up — it can't stop
-you booting. Caveat: HDMI/USB-C DP is often wired to the dGPU, so external monitors may
-stop working, and niri issue #3265 reports this doesn't always reach D3cold anyway.
+**Motivation, for context:** on the laptop this was chased to stop SDDM's leftover X
+server from holding the discrete GPU awake. That motivation does not exist here — single
+AMD GPU, nothing to power down — so there is no reason to retry it at all. The scar
+tissue is kept only so nobody rediscovers the idea and breaks the boot.
 
 ### 4.4 Verify before asserting
 An earlier session claimed screenshot and brightness keys were broken and needed
@@ -276,6 +276,3 @@ No matching directory → reboot.
 **Alacritty binds Ctrl+L twice** (`ClearLogNotice` and `chars = "\f"`). Unresolved
 whether the first swallows the key. If tmux `C-l` (pane-right) misbehaves while
 `C-h/j/k` are fine, that's the suspect.
-
-**`nvidia-smi` wakes the dGPU.** Repeated polling keeps it awake. Leave the machine
-alone ~10 minutes, then run it once, for a true idle reading.
