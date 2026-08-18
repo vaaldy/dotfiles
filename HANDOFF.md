@@ -19,9 +19,13 @@ equivalent — terminals cannot transmit Cmd, so `<D-s>` simply never fires.
 
 ### 0.2 Do not touch input remapping
 
-`/etc/keyd/`, niri's modifier bindings, and any system-wide key remapping are
-**off-limits**. Two separate attempts at macOS-style modifiers were built and fully
-reverted (see §4). The user chose stock modifiers deliberately.
+niri's modifier bindings and any system-wide key remapping are **off-limits**. Two
+separate attempts at macOS-style modifiers were built and fully reverted (see §4). The
+user chose stock modifiers deliberately.
+
+**keyd is not installed on this machine and is not wanted.** On the laptop it was there
+to work around that keyboard's own quirks; this PC has a normal external keyboard, so
+the reason is gone. There is no `/etc/keyd/`. Do not propose installing it.
 
 Editing `niri/cfg/layout.kdl` or adding window rules is fine — that ground is not
 scarred. It is specifically the *modifier* experiments that failed.
@@ -144,10 +148,13 @@ spanning layers that couldn't be evaluated one piece at a time.
 All bindings rewritten to Cmd-style chords before the physical modifier swap landed.
 Semantics moved, thumb position didn't.
 
-### 4.2 keyd `leftalt = leftcontrol` — reverted
+### 4.2 keyd `leftalt = leftcontrol` — reverted (laptop only; keyd absent here)
 Made Cmd+C/V work in GUI apps, but keyd rewrites the key *before any application sees
 it*, so Cmd and Ctrl became literally the same keystroke. Cmd+C sent SIGINT in the
 terminal. Binding Cmd+Q in Alacritty also bound Ctrl+Q.
+
+Recorded because the failure mode is worth knowing, not because keyd is in play — the
+laptop needed it for that keyboard's quirks, this machine does not run it at all.
 
 ### 4.3 SDDM Wayland greeter — reverted, BROKE THE BOOT
 Written to `/etc/sddm.conf.d/99-wayland.conf`:
