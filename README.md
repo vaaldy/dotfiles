@@ -51,14 +51,14 @@ Rerun `install-macos.sh` to relink the configuration. Existing files are moved t
 
 ## Host (`pc`)
 
-AMD desktop, CachyOS. Single AMD GPU — none of the iGPU/dGPU render-node
-handling on `main` applies here. Exact CPU/GPU/monitor not yet recorded; run
-`lspci -nn | grep -Ei 'vga|3d'` and `niri msg outputs` and fill them in.
+`valdy-cachy-pc` — CachyOS, Ryzen 5 5500, AMD Navi 22 (RX 6700 XT class,
+`amdgpu`). No iGPU, so none of the hybrid render-node handling on `main`
+applies. Display is DP-3, an AOC Q27G3XMN at 2560x1440@170Hz, scale 1.
 
-Two things left tuned for the laptop that you may want to change once the
-monitor is known:
+Still tuned for the laptop:
 
-- `alacritty.toml` `font.size = 10` — sized for a 1.75-scale HiDPI panel, likely
-  too small at scale 1.
-- `niri/cfg/display.kdl` — every output block is commented out, so niri
-  autodetects. Uncomment and set the real mode/scale if it guesses wrong.
+- `alacritty.toml` `font.size = 10` — sized for a 1.75-scale HiDPI panel. This
+  monitor is ~109 DPI at scale 1, so 10 renders small; 12-13 is the equivalent.
+- `niri/cfg/display.kdl` — output blocks are commented out and autodetect picks
+  2560x1440@170 scale 1 correctly, so there is nothing to uncomment unless you
+  want VRR (`variable-refresh-rate`) or a fixed mode.

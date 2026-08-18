@@ -52,7 +52,7 @@ the difference.
 | Display manager | SDDM |
 | Shell UI | noctalia |
 | AUR helper | `paru` |
-| Display | desktop monitor — name/mode/scale **TBD, run `niri msg outputs`** |
+| Display | DP-3, AOC Q27G3XMN, 2560x1440 @170Hz, **scale 1** (VRR supported, disabled) |
 | Filesystem | btrfs + snapper + snap-pac + limine-snapper-sync |
 
 ### GPU — single AMD, no hybrid graphics
@@ -61,16 +61,12 @@ This machine is AMD. Unlike the laptop on `main` there is no second GPU, so none
 iGPU/dGPU render-node juggling applies: `/dev/dri/renderD128` is *the* GPU, `amdgpu`
 drives it, and nothing needs to be told which card to pick.
 
-Fill in the specifics before relying on them:
-
-```fish
-lspci -nn | grep -Ei 'vga|3d|display'
-ls -l /dev/dri/by-path/
-```
-
 | PCI | Device | card | render node |
 |---|---|---|---|
-| TBD | AMD (`amdgpu`) | TBD | TBD |
+| `0000:09:00.0` | AMD Navi 22 (RX 6700/6700 XT class, `amdgpu`) | card1 | **renderD128** |
+
+CPU is a Ryzen 5 5500 — no integrated graphics, so the Navi 22 is the only display
+device and `renderD128` is unambiguous.
 
 ### Thermals
 
