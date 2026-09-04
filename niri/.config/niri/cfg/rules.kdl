@@ -18,6 +18,33 @@
         default-window-height { fixed 920; }
     }
 
+    // Floating Raffi launcher.
+    window-rule {
+        match app-id="com.chmouel.raffi"
+        open-floating true
+        default-column-width { fixed 700; }
+        default-window-height { fixed 380; }
+    }
+
+    // Telegram always opens on workspace 2.
+    window-rule {
+        match app-id=r#"^org\.telegram\.desktop$"#
+        open-on-workspace "2"
+        default-column-width { proportion 0.25; }
+    }
+
+    // Spotify always opens on workspace 2.
+    window-rule {
+        match app-id="^spotify$"
+        open-on-workspace "2"
+    }
+
+    // Files (Nautilus) always opens at smallest width.
+    window-rule {
+        match app-id=r#"^org\.gnome\.Nautilus$"#
+        default-column-width { proportion 0.25; }
+    }
+
     // if you use steam you will probably like these
     window-rule {
         match app-id="steam"
