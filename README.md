@@ -20,6 +20,7 @@ graph TD
   - Git: gitsigns.nvim, diffview.nvim, vim-fugitive, and git-conflict.nvim
   - UI: rose-pine, lualine.nvim, and which-key.nvim
 - **File explorer:** [Yazi](https://yazi-rs.github.io/)
+- **Media player:** [mpv](https://mpv.io/)
 - **Linux desktop:** [niri](https://github.com/YaLTeR/niri) + [Noctalia](https://github.com/noctalia-dev/noctalia-shell)
 - **macOS desktop:** yabai + skhd + SketchyBar
 - **Coding agent:** [Pi](https://github.com/earendil-works/pi)
@@ -33,7 +34,7 @@ Check out the branch for the current machine.
 Configurations are [GNU Stow](https://www.gnu.org/software/stow/) packages:
 
 ```sh
-stow alacritty niri nvim tmux fish noctalia mcp yazi
+stow alacritty niri nvim tmux fish noctalia mcp yazi mpv
 mkdir -p ~/.pi/agent
 stow --no-folding pi
 ```
@@ -48,6 +49,11 @@ git switch macos
 ```
 
 Rerun `install-macos.sh` to relink the configuration. Existing files are moved to timestamped backups before linking.
+
+## mpv
+
+Plugins are tracked under `mpv/.config/mpv/scripts/`; shaders live under
+`mpv/.config/mpv/shaders/`.
 
 ## Host (`pc`)
 

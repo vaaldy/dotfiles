@@ -1,0 +1,11 @@
+// Overrides the active border/focus-ring color from noctalia.kdl (theme-synced)
+// with a fixed yellow. Must be included after "noctalia.kdl" to win.
+layout {
+    focus-ring {
+        active-color "#FACC15"
+    }
+
+    border {
+        active-color "#FACC15"
+    }
+}

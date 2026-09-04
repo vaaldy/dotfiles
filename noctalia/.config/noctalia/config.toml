@@ -1,2 +1,30 @@
 [shell]
 polkit_agent = true
+font_family = "Iosevka"
+
+[shell.launcher]
+categories = false
+compact = true
+
+[bar.default]
+margin_edge = 12
+margin_ends = 12
+font_weight = 550
+scale = 1.10
+
+[widget.clock]
+type = "clock"
+format = "{:%a %d %b, %H:%M}"
+
+[backdrop]
+enabled = false
+blur_intensity = 0.1
+tint_intensity = 0.5
+
+[calendar]
+enabled = true
+refresh_minutes = 15
+
+[calendar.account.personal_google]
+type="google"
+name="Personal"
