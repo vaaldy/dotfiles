@@ -17,7 +17,7 @@ return {
     opts = {
       variant = "main",
       dark_variant = "main",
-      styles = { italic = true, transparency = false },
+      styles = { italic = true, transparency = true },
       palette = {
         main = {
           base = "#201A28",    -- == alacritty colors.primary.background

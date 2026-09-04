@@ -1,0 +1,13 @@
+version: 1
+
+general:
+  ui_type: native
+  font_family: "JetBrainsMono Nerd Font"
+  font_size: 12
+  padding: 4
+
+addons:
+  calculator:
+    enabled: true
+  file_browser:
+    enabled: true
