@@ -3,4 +3,7 @@
 // You will have to remove "/-" and edit it before it takes effect.
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 
-// Add an output block here for a specific monitor or laptop panel.
+output "eDP-1" {
+    mode "2880x1800@120"
+    scale 1.75
+}
