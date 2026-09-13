@@ -1,47 +1,27 @@
 return {
-  -- ── file tree ─────────────────────────────────────────────────────────────
+  -- ── file manager ──────────────────────────────────────────────────────────
   {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    cmd = "Neotree",
+    "mikavilpas/yazi.nvim",
+    event = "VeryLazy",
     dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons",
-      "MunifTanjim/nui.nvim",
+      { "nvim-lua/plenary.nvim", lazy = true },
     },
     keys = {
-      { "<leader>e", "<cmd>Neotree toggle reveal left<CR>", desc = "Explorer toggle" },
-      { "<leader>E", "<cmd>Neotree reveal left<CR>", desc = "Explorer reveal file" },
-      { "<leader>ge", "<cmd>Neotree float git_status<CR>", desc = "Explorer git status" },
-      { "<leader>be", "<cmd>Neotree toggle show buffers right<CR>", desc = "Explorer buffers" },
+      {
+        "<leader>e",
+        mode = { "n", "v" },
+        "<cmd>Yazi<CR>",
+        desc = "Open Yazi at current file",
+      },
+      {
+        "<leader>E",
+        "<cmd>Yazi cwd<CR>",
+        desc = "Open Yazi in working directory",
+      },
     },
     opts = {
-      close_if_last_window = true,
-      popup_border_style = "rounded",
-      enable_git_status = true,
-      enable_diagnostics = true,
-      filesystem = {
-        follow_current_file = { enabled = true },
-        use_libuv_file_watcher = true, -- picks up files an agent creates in another pane
-        filtered_items = {
-          hide_dotfiles = false,
-          hide_gitignored = true,
-          hide_by_name = { ".git", "node_modules", ".DS_Store" },
-        },
-      },
-      window = {
-        width = 32,
-        mappings = {
-          ["<space>"] = "none", -- leader stays leader
-          ["l"] = "open",
-          ["h"] = "close_node",
-          ["P"] = { "toggle_preview", config = { use_float = true } },
-        },
-      },
-      default_component_configs = {
-        indent = { with_expanders = true },
-        git_status = { symbols = { added = "+", modified = "~", deleted = "-", renamed = "→" } },
-      },
+      open_for_directories = true,
+      keymaps = { show_help = "<f1>" },
     },
   },
 

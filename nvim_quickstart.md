@@ -75,7 +75,7 @@ If you're ever lost: `Esc` twice, then `:q`.
 | `<leader>ff` | find file by name |
 | `<leader>fg` | grep the whole project |
 | `<leader>/` | search inside this file |
-| `<leader>e` | toggle file tree |
+| `<leader>e` | open Yazi at the current file |
 | `<leader>fb` | switch buffer |
 | `S-h` / `S-l` | previous / next buffer |
 | `gd` | jump to definition |
@@ -105,8 +105,8 @@ Because Ctrl-hjkl is spoken for, **splits are on leader**: `<leader>sv` vertical
 cd ~/Projects/thing && nvim .
 ```
 
-Then `<leader>ff` to find a file, or `<leader>e` for the tree. `<leader>fg` when you know
-a string but not a filename — usually faster than the tree.
+Then `<leader>ff` to find a file, or `<leader>e` to browse from the current file in
+Yazi. `<leader>fg` searches when you know a string but not a filename.
 
 ### Edit with the language server
 
@@ -192,7 +192,7 @@ init.lua                   entry point, sets leader
 lua/config/options.lua     editor settings
 lua/config/keymaps.lua     global keymaps
 lua/config/lazy.lua        plugin manager bootstrap
-lua/plugins/editor.lua     neo-tree, fzf-lua, autopairs, surround, tmux nav
+lua/plugins/editor.lua     Yazi, fzf-lua, autopairs, surround, tmux nav
 lua/plugins/treesitter.lua highlighting + text objects
 lua/plugins/lsp.lua        language servers, completion, formatting
 lua/plugins/git.lua        gitsigns, diffview, fugitive, conflicts
