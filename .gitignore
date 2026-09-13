@@ -7,3 +7,21 @@ alacritty/.config/alacritty/themes/noctalia.toml
 # editor + plugin state (lazy-lock.json is tracked on purpose)
 nvim/.config/nvim/lazy/
 nvim/.config/nvim/plugin/
+
+# credentials and local environment
+.env
+.env.*
+*.env
+*.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Pi credentials and runtime state
+pi/.pi/agent/auth.json
+pi/.pi/agent/models-store.json
+pi/.pi/agent/npm/
+pi/.pi/agent/sessions/
