@@ -61,10 +61,9 @@ Plugins are tracked under `mpv/.config/mpv/scripts/`; shaders live under
 `amdgpu`). No iGPU, so none of the hybrid render-node handling on `main`
 applies. Display is DP-3, an AOC Q27G3XMN at 2560x1440@170Hz, scale 1.
 
-Still tuned for the laptop:
+PC-specific display settings:
 
-- `alacritty.toml` `font.size = 10` — sized for a 1.75-scale HiDPI panel. This
-  monitor is ~109 DPI at scale 1, so 10 renders small; 12-13 is the equivalent.
+- `alacritty.toml` uses `font.size = 12` for the ~109 DPI monitor at scale 1.
 - `niri/cfg/display.kdl` — output blocks are commented out and autodetect picks
   2560x1440@170 scale 1 correctly, so there is nothing to uncomment unless you
   want VRR (`variable-refresh-rate`) or a fixed mode.
