@@ -67,6 +67,7 @@ bindings = [
 
 [keyboard]
 bindings = [
+{ key = "Return", mods = "Super", chars = "\u000a" },
 { key = "Paste", mods = "None", action = "Paste" },
 { key = "Copy", mods = "None", action = "Copy" },
 { key = "PageUp", mods = "Shift", mode = "~Alt", action = "ScrollPageUp" },

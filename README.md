@@ -58,6 +58,16 @@ stow -n -v alacritty                          # dry run
   out at the foot of `tmux.conf` — the scripts aren't installed on this machine
   yet.
 
+## Pi
+
+The `/btw` extension uses tmux and zoxide. The `/term-chan` extension expects
+[term-chan](https://github.com/vaaldy/term-chan) under
+`~/.local/share/term-chan` (override with `TERM_CHAN_PI_INTEGRATION`):
+
+```fish
+git clone https://github.com/vaaldy/term-chan ~/.local/share/term-chan
+```
+
 ## Not tracked
 
 - `fish_variables` — fish universal variables, host-specific and mode 0600.
