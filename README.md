@@ -14,6 +14,9 @@ nvim/.config/nvim/             ->  ~/.config/nvim/
 tmux/.config/tmux/             ->  ~/.config/tmux/
 fish/.config/fish/             ->  ~/.config/fish/
 noctalia/.config/noctalia/     ->  ~/.config/noctalia/
+mcp/.config/mcp/               ->  ~/.config/mcp/
+pi/.pi/agent/                  ->  ~/.pi/agent/
+yazi/.config/yazi/             ->  ~/.config/yazi/
 ```
 
 ## Usage
@@ -21,7 +24,7 @@ noctalia/.config/noctalia/     ->  ~/.config/noctalia/
 ```fish
 cd ~/dotfiles
 
-stow alacritty niri nvim tmux fish noctalia   # link everything
+stow alacritty niri nvim tmux fish noctalia mcp pi yazi
 stow -R niri                                  # re-link after adding files
 stow -D niri                                  # unlink
 stow -n -v alacritty                          # dry run
@@ -37,6 +40,8 @@ stow -n -v alacritty                          # dry run
   method stealing it: `pgrep -x fcitx5; pgrep -x ibus-daemon`.
 - **`C-h/j/k/l` move between panes**, transparently across the tmux/nvim
   boundary (`vim-tmux-navigator` plus the `is_vim` check in `tmux.conf`).
+- **`C-j` reaches interactive agents**, including Pi and Codex, instead of
+  moving to the tmux pane below.
 - **Colors are shared, not merely similar.** rose-pine's `base`/`surface`/
   `overlay` are pinned to the Alacritty background, the tmux status bar and the
   pane border respectively, so all three layers agree to the byte:
@@ -59,8 +64,8 @@ stow -n -v alacritty                          # dry run
 - Plugin checkouts, which lazy.nvim keeps in `~/.local/share/nvim/lazy/` and so
   are outside this repo anyway. `lazy-lock.json` *is* tracked so versions pin.
 
-## Host
+## Branches
 
-Framework-class laptop: Intel Core Ultra 7 255H (Arrow Lake-H), Arc 140T iGPU +
-RTX 5060 Mobile, 2880x1800@120 eDP-1 at 1.75 scale. Root on btrfs with snapper
-+ snap-pac + limine-snapper-sync.
+`main` is the shared Linux starting point. `pc` and `laptop` contain only
+device-specific changes on top of it. The separate macOS repository is the
+reference for portable terminal and Pi updates.

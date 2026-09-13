@@ -1,78 +1,64 @@
--- ───────────────────────────────────────────────────────────────────────────
--- Markdown injections: work around a broken nvim-treesitter directive.
---
--- Symptom, on every cursor move in a markdown buffer containing ``` blocks:
---   Decoration provider "start" (ns=nvim.treesitter.highlighter):
---   .../vim/treesitter.lua:197: attempt to call method 'range' (a nil value)
---
--- Cause: nvim-treesitter ships its own queries/markdown/injections.scm which
--- resolves the fence language via a custom directive, implemented at
--- nvim-treesitter/lua/nvim-treesitter/query_predicates.lua:135 —
---
---     local node = match[capture_id]
---     if not node then return end
---     local injection_alias = vim.treesitter.get_node_text(node, bufnr):lower()
---
--- On Neovim 0.12 `match[capture_id]` is a TSNode[] LIST, not a single TSNode.
--- A table is truthy, so the nil-guard passes, and get_node_text() goes on to
--- call vim.treesitter.get_range() -> `node:range(true)` on a plain table.
--- It throws from the async parse coroutine driven by the highlighter, hence
--- the decoration-provider framing.
---
--- Upstream declined it on both sides: neovim/neovim#39032 and
--- nvim-treesitter#8618 are closed "not planned" (see also #8636 for the
--- underlying match[id] API change). nvim-treesitter's master branch is in
--- maintenance — `main` is the rewrite — so no fix is coming.
---
--- Below is Neovim 0.12's own $VIMRUNTIME/queries/markdown/injections.scm,
--- which needs no custom directive: it captures @injection.language directly.
---
--- Why query.set() rather than a file in ~/.config/nvim/queries/: query.set
--- writes to the `explicit_queries` table, which vim/treesitter/query.lua:293
--- consults BEFORE any runtimepath lookup, and M.set() clears the memoized
--- M.get cache. So it does not depend on stow having linked a queries/
--- directory, on runtimepath ordering, or on load timing. There is no
--- ';; extends' modeline, so this fully REPLACES the plugin's query rather
--- than appending to it (query.lua:312-323).
---
--- TO REVERT: delete this block. If nvim-treesitter ever fixes the directive,
--- that is the only change needed.
--- ───────────────────────────────────────────────────────────────────────────
-vim.treesitter.query.set(
-  "markdown",
-  "injections",
-  [==[
-(fenced_code_block
-  (info_string
-    (language) @injection.language)
-  (code_fence_content) @injection.content)
-
-((html_block) @injection.content
-  (#set! injection.language "html")
-  (#set! injection.combined)
-  (#set! injection.include-children))
-
-((minus_metadata) @injection.content
-  (#set! injection.language "yaml")
-  (#offset! @injection.content 1 0 -1 0)
-  (#set! injection.include-children))
-
-((plus_metadata) @injection.content
-  (#set! injection.language "toml")
-  (#offset! @injection.content 1 0 -1 0)
-  (#set! injection.include-children))
-
-([
-  (inline)
-  (pipe_table_cell)
-] @injection.content
-  (#set! injection.language "markdown_inline"))
-]==]
-)
-
 -- The "good text highlighter": treesitter builds a real syntax tree per buffer,
 -- so highlighting, indentation and text objects understand code structure
 -- instead of pattern-matching it.
+
+-- ── Neovim 0.12 compatibility shim for nvim-treesitter ──────────────────────
+-- In Neovim 0.12, query predicates and directives receive `match` where each
+-- capture ID maps to a `TSNode[]` list, not a single `TSNode`. Legacy
+-- nvim-treesitter directives (#downcase!, #set-lang-from-info-string!,
+-- #set-lang-from-mimetype!) and predicates (#nth?, #is?, #kind-eq?) expect
+-- single TSNodes and call node methods (or pass them to get_node_text which
+-- calls node:range()), causing "attempt to call method 'range' (a nil value)"
+-- whenever files have heredocs (sh/bash), fences (markdown), embedded scripts, etc.
+if not vim.g._ts_012_compat_applied then
+  vim.g._ts_012_compat_applied = true
+
+  local orig_get_node_text = vim.treesitter.get_node_text
+  vim.treesitter.get_node_text = function(node, source, opts)
+    if type(node) == "table" and node[1] then
+      node = node[1]
+    end
+    return orig_get_node_text(node, source, opts)
+  end
+
+  local function unwrap_match(match)
+    local unwrapped = {}
+    for k, v in pairs(match) do
+      if type(v) == "table" and v[1] and type(v[1]) == "userdata" then
+        unwrapped[k] = v[1]
+      else
+        unwrapped[k] = v
+      end
+    end
+    return unwrapped
+  end
+
+  local orig_add_directive = vim.treesitter.query.add_directive
+  vim.treesitter.query.add_directive = function(name, handler, opts)
+    local wrapped = function(match, pattern, bufnr, pred, metadata)
+      return handler(unwrap_match(match), pattern, bufnr, pred, metadata)
+    end
+    return orig_add_directive(name, wrapped, opts)
+  end
+
+  local orig_add_predicate = vim.treesitter.query.add_predicate
+  vim.treesitter.query.add_predicate = function(name, handler, opts)
+    local wrapped = function(match, pattern, bufnr, pred)
+      return handler(unwrap_match(match), pattern, bufnr, pred)
+    end
+    return orig_add_predicate(name, wrapped, opts)
+  end
+end
+
+-- Fallback: Neovim's own bundled markdown injections query
+pcall(function()
+  local path = vim.fs.joinpath(vim.env.VIMRUNTIME, "queries", "markdown", "injections.scm")
+  local lines = vim.fn.readfile(path)
+  if type(lines) == "table" and #lines > 0 then
+    vim.treesitter.query.set("markdown", "injections", table.concat(lines, "\n"))
+  end
+end)
+
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -139,35 +125,26 @@ return {
   {
     "nvim-treesitter/nvim-treesitter-context",
     event = { "BufReadPost", "BufNewFile" },
+    main = "treesitter-context",
     opts = {
       max_lines = 3,
       multiline_threshold = 1,
-
-      -- Neovim 0.12 regression, still unfixed: markdown's bundled query sets
-      -- `conceal_lines` on fenced-code-block delimiters, and 0.12 calls
-      -- .range() on a nil node handling it. This plugin's parent-langtree
-      -- walk (how it computes the sticky header) goes straight through that
-      -- path, so any markdown buffer containing a ``` block throws on every
-      -- cursor move. Both upstreams closed it "not planned":
-      --   neovim/neovim#39032
-      --   nvim-treesitter/nvim-treesitter#8618
-      --
-      -- So the buffer simply never gets attached. `on_attach` is the plugin's
-      -- own per-buffer hook — return false to skip a buffer. It replaces an
-      -- earlier TSContextDisable-on-FileType workaround that had two holes:
-      -- TSContextDisable is GLOBAL with no re-enable (one markdown file killed
-      -- sticky context everywhere for the rest of the session), and the guard
-      -- read `vim.bo.filetype` — the *current* buffer — rather than the buffer
-      -- the event fired for, so it no-op'd whenever a markdown buffer loaded
-      -- while something else was focused. Here the plugin hands us the right
-      -- buffer and there is no global state to leak.
+      -- Belt-and-braces with the injection-query fix above: skip markdown
+      -- entirely. This replaces an earlier workaround that called
+      -- `:TSContextDisable` — a command this plugin no longer registers (it
+      -- exposes `:TSContext <subcommand>` now), so it threw E492 into a pcall
+      -- that swallowed it and the guard never actually ran. That version was
+      -- doubly wrong anyway: TSContextDisable is global with no re-enable, so
+      -- one markdown file would have killed sticky context everywhere for the
+      -- rest of the session, and it read `vim.bo.filetype` (the CURRENT
+      -- buffer) rather than the buffer the FileType event fired for, so it
+      -- no-op'd whenever a markdown buffer loaded unfocused.
+      -- on_attach returning false disables context per-buffer. No commands,
+      -- no autocmds, no global state.
       on_attach = function(buf)
         local ft = vim.bo[buf].filetype
         return ft ~= "markdown" and ft ~= "markdown_inline" and ft ~= "mdx"
       end,
     },
-    config = function(_, opts)
-      require("treesitter-context").setup(opts)
-    end,
   },
 }
