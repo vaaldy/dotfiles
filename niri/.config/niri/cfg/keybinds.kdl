@@ -9,7 +9,7 @@ binds {
     Mod+Shift+ESCAPE                     { show-hotkey-overlay; }
 
     // ─── Applications ───
-    Mod+Return                          hotkey-overlay-title="Open Terminal: Alacritty" { spawn "alacritty"; }
+    Mod+Y                               hotkey-overlay-title="Open Terminal: Alacritty" { spawn "alacritty"; }
     Mod+B                               hotkey-overlay-title="Open Browser: firefox" { spawn "firefox"; }
     Mod+F1                              hotkey-overlay-title="Open Telegram" { spawn "Telegram"; }
     Mod+F2                              hotkey-overlay-title="Open Spotify" { spawn "spotify-launcher"; }
