@@ -1,5 +1,6 @@
 # machine-generated / host-specific state
 fish_variables
+alacritty/.config/alacritty/themes/noctalia.toml
 *.bak
 *.swp
 

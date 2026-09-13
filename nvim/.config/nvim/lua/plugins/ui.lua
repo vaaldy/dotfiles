@@ -1,7 +1,7 @@
 return {
   -- ── colorscheme ───────────────────────────────────────────────────────────
   -- The macOS config ran Tokyo Night Storm. This machine's Alacritty uses the
-  -- noctalia purple theme (~/.config/alacritty/themes/noctalia.toml), and a
+  -- shared static purple palette in alacritty.toml, and a
   -- blue-grey editor on a purple terminal reads as a mistake — so: rose-pine,
   -- whose default palette is already purple-leaning, with base/surface/overlay
   -- pinned to the exact Alacritty and tmux values. nvim's background, tmux's

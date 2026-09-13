@@ -48,7 +48,7 @@ stow -n -v alacritty                          # dry run
 
   | value     | where it comes from                    | used by                          |
   |-----------|----------------------------------------|----------------------------------|
-  | `#201A28` | `alacritty/themes/noctalia.toml` bg    | nvim `Normal`                    |
+  | `#201A28` | `alacritty/alacritty.toml` background | nvim `Normal`                    |
   | `#2A2136` | tmux `status-style` bg                 | nvim `NormalFloat`, `StatusLine` |
   | `#382E47` | tmux `pane-border-style`               | nvim `CursorLine`                |
 
