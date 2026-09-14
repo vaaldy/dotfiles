@@ -68,7 +68,11 @@ return {
       { "<leader>fc", "<cmd>FzfLua git_status<CR>", desc = "Changed files" },
       { "<leader>/",  "<cmd>FzfLua blines<CR>", desc = "Search in buffer" },
     },
-    opts = { "telescope", winopts = { height = 0.85, width = 0.85, preview = { layout = "flex" } } },
+    opts = {
+      "telescope",
+      files = { hidden = true, no_ignore = true },
+      winopts = { height = 0.85, width = 0.85, preview = { layout = "flex" } },
+    },
   },
 
   -- ── tmux <-> nvim pane navigation with C-hjkl ─────────────────────────────
