@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Rotate tiled window slots in the focused space.
+# Stacked windows sharing one frame are treated as one slot and move together.
+set -euo pipefail
+
+command -v yabai >/dev/null 2>&1 || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+
+windows="$(yabai -m query --windows --space 2>/dev/null || true)"
+[[ -n "$windows" ]] || exit 0
+
+groups=()
+while IFS=$'\t' read -r rep member_list; do
+  [[ -n "$rep" ]] || continue
+  groups+=("$rep:$member_list")
+done < <(jq -r '
+  [.[] | select(."is-visible" == true and ."is-floating" == false and .layer == "normal")]
+  | sort_by([.frame.x, .frame.y, .frame.w, .frame.h])
+  | group_by([.frame.x, .frame.y, .frame.w, .frame.h])
+  | map(sort_by(."stack-index") | {rep: .[0].id, members: [.[].id]})
+  | .[] | [.rep, (.members | join(","))] | @tsv
+' <<<"$windows")
+
+count=${#groups[@]}
+[[ "$count" -gt 1 ]] || exit 0
+
+reps=()
+members=()
+for group in "${groups[@]}"; do
+  reps+=("${group%%:*}")
+  members+=("${group#*:}")
+done
+
+# Right rotate the slots. For [A B C], this is:
+# swap(A,C), then swap(B,A), producing [C A B].
+for ((i = 0; i < count - 1; i++)); do
+  last=$((count - 1))
+  left_rep="${reps[$i]}"
+  right_rep="${reps[$last]}"
+  left_members="${members[$i]}"
+  right_members="${members[$last]}"
+  yabai -m window "$left_rep" --swap "$right_rep" >/dev/null 2>&1 || exit 1
+  reps[$i]="$right_rep"
+  reps[$last]="$left_rep"
+  members[$i]="$right_members"
+  members[$last]="$left_members"
+done
+
+# Rebuild each stacked group after the slot rotation.
+for ((i = 0; i < count; i++)); do
+  IFS=',' read -r -a group_members <<<"${members[$i]}"
+  for member in "${group_members[@]:1}"; do
+    yabai -m window "${reps[$i]}" --stack "$member" >/dev/null 2>&1 || true
+  done
+done
+
+# Refresh the per-monitor SketchyBar app strip.
+sketchybar --update >/dev/null 2>&1 || true
