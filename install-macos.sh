@@ -18,6 +18,8 @@ link() {
 }
 
 # macOS host configuration
+link "$here/macos/.zshenv" "$HOME/.zshenv"
+link "$here/macos/.config/bash/env" "$HOME/.config/bash/env"
 link "$here/macos/.config/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
 link "$here/macos/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
 link "$here/nvim/.config/nvim" "$HOME/.config/nvim"
