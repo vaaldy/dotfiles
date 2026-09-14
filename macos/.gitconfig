@@ -1,0 +1,138 @@
+# ~/.gitconfig
+#
+# Identity lives in ~/.gitconfig.local (not tracked) — see the [include] at the
+# bottom. install.sh scaffolds it for you.
+
+[core]
+	pager = delta
+	editor = nvim
+	excludesfile = ~/.config/git/ignore
+	untrackedCache = true
+	fsmonitor = true
+
+[init]
+	defaultBranch = main
+
+[column]
+	ui = auto
+[branch]
+	sort = -committerdate      # most recently touched branch first
+[tag]
+	sort = version:refname
+
+[diff]
+	algorithm = histogram      # far better hunks than the default on real code
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
+[merge]
+	conflictstyle = zdiff3     # shows the common ancestor — the one that matters
+	tool = nvimdiff
+[mergetool]
+	prompt = false
+	keepBackup = false
+[mergetool "nvimdiff"]
+	cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+
+[rerere]
+	enabled = true             # remember conflict resolutions; replays them next time
+	autoupdate = true
+
+[push]
+	default = simple
+	autoSetupRemote = true     # no more "set upstream" dance on first push
+	followTags = true
+[pull]
+	rebase = false              # merge on pull, not rebase — makes a merge commit
+[fetch]
+	prune = true
+	pruneTags = true
+	all = true
+
+[rebase]
+	autoSquash = true
+	autoStash = true
+	updateRefs = true
+
+[commit]
+	verbose = true             # full diff in the commit message buffer
+
+# ── credentials ──────────────────────────────────────────────────────────────
+# osxkeychain is git's own macOS helper — it stores your HTTPS username + token
+# in the login Keychain so you type them once, ever. It ships with git itself.
+#
+# macOS will ask "git-credential-osxkeychain wants to use your confidential
+# information stored in <host>" the first time a NEW git binary touches an
+# existing keychain item (e.g. right after `brew install git`, because the
+# Homebrew helper is a different binary than Apple's and the keychain ACL
+# doesn't recognise it yet). Click "Always Allow" and it stops asking.
+[credential]
+	helper = osxkeychain
+[help]
+	autocorrect = prompt
+
+# ── delta: the pager that makes reviewing agent output bearable ──────────────
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true            # n / N jump between files in the diff
+	line-numbers = true
+	side-by-side = false       # flip to true if your Alacritty pane is wide
+	hyperlinks = true
+	syntax-theme = "TwoDark"
+	file-style = "bold yellow"
+	file-decoration-style = "yellow ul"
+	hunk-header-decoration-style = "blue box"
+
+# ── worktrees: the thing that makes parallel agents safe ─────────────────────
+[worktree]
+	guessRemote = true
+[alias]
+	# review — what did the agent actually do?
+	st = status -sb
+	d = diff
+	dc = diff --cached
+	ds = diff --stat
+	# everything changed since I last looked, staged or not
+	dall = diff HEAD
+	# review a branch against where it forked from
+	dbase = "!f() { base=\"${1:-main}\"; [ $# -gt 0 ] && shift; git diff \"$(git merge-base HEAD \"$base\")\"...HEAD \"$@\"; }; f"
+
+	# history
+	l = log --oneline --graph --decorate -20
+	ll = log --oneline --graph --decorate --all
+	last = show --stat HEAD
+	who = shortlog -sn --no-merges
+
+	# flow
+	a = add
+	aa = add --all
+	c = commit
+	cm = commit -m
+	ca = commit --amend --no-edit
+	co = checkout
+	sw = switch
+	b = branch
+	br = branch -vv
+	p = push
+	pf = push --force-with-lease   # never bare --force
+	f = fetch --all --prune
+	# stash including untracked — agents leave new files around
+	save = stash push -u
+
+	# undo, in increasing severity
+	undo = reset --soft HEAD~1
+	unstage = restore --staged
+	discard = restore
+
+	# worktrees
+	wt = worktree
+	wtl = worktree list
+	wta = worktree add
+	wtr = worktree remove
+
+	# what branch am I actually on
+	cur = rev-parse --abbrev-ref HEAD
+
+[include]
+	path = ~/.gitconfig.local

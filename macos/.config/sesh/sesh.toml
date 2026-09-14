@@ -1,0 +1,16 @@
+# ~/.config/sesh/sesh.toml
+
+# Pinned config bookmarks (accessible via Ctrl-g in sesh picker)
+[[session]]
+name = "term-agentic (dotfiles)"
+path = "~/Documents/term-agentic"
+
+[[session]]
+name = "nvim config"
+path = "~/.config/nvim"
+
+# Example: Custom session configuration for term-chan
+# [[session]]
+# name = "term-chan"
+# path = "~/Documents/term-chan"
+# startup_command = "tmux split-window -h -p 35; tmux select-pane -L; nvim ."

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# yabai-cycle-space next|prev
+# Cycle only through Spaces belonging to the currently focused display.
+set -euo pipefail
+
+direction="${1:-}"
+[[ "$direction" == next || "$direction" == prev ]] || exit 2
+command -v yabai >/dev/null 2>&1 || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+
+spaces_json="$(yabai -m query --spaces --display 2>/dev/null || true)"
+[[ -n "$spaces_json" ]] || exit 0
+
+spaces=()
+while IFS= read -r index; do
+  [[ -n "$index" ]] && spaces+=("$index")
+done < <(jq -r 'sort_by(.index)[] | .index' <<<"$spaces_json")
+
+count=${#spaces[@]}
+[[ "$count" -gt 1 ]] || exit 0
+
+current="$(jq -r '[.[] | select(."is-visible" == true) | .index][0] // empty' <<<"$spaces_json")"
+[[ -n "$current" ]] || exit 0
+
+position=0
+for ((i = 0; i < count; i++)); do
+  [[ "${spaces[$i]}" == "$current" ]] && position=$i
+done
+
+if [[ "$direction" == next ]]; then
+  target="${spaces[$(( (position + 1) % count ))]}"
+else
+  target="${spaces[$(( (position + count - 1) % count ))]}"
+fi
+
+yabai -m space --focus "$target"

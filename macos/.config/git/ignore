@@ -1,0 +1,21 @@
+# ~/.config/git/ignore — global, applies to every repo.
+# Keep this to noise your machine and tooling generate, never project artifacts.
+
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+*.swp
+*.swo
+.netrwhist
+tags
+
+.direnv/
+.envrc.local
+
+# Agent scratch. Add whatever your CLI of choice drops in a repo.
+.claude/local/
+.aider*
+!.aider.conf.yml
+.opencode/

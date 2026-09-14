@@ -1,0 +1,17 @@
+# ~/.config/paneru/paneru.toml
+#
+# Kept here in case you go back to the scrolling model. Same six keys as the
+# yabai/skhd setup, so switching WM costs you no muscle memory.
+
+[bindings]
+"alt-a" = "window_focus_west"
+"alt-d" = "window_focus_east"
+"alt-shift-a" = "window_swap_west"
+"alt-shift-d" = "window_swap_east"
+"alt-shift-r" = "window_fullwidth"
+
+# optional extras
+# "alt-w" = "window_focus_north"
+# "alt-s" = "window_focus_south"
+# "alt-shift-r" = "window_shrink"
+# "alt-t" = "window_manage"        # toggle tiled/floating
