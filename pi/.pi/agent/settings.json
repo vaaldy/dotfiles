@@ -1,10 +1,12 @@
 {
   "lastChangelogVersion": "0.85.1",
-  "theme": "dark",
+  "theme": "tokyo-night",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
   "packages": [
-    "npm:pi-compact-transcript"
+    "npm:pi-mcp-adapter@2.33.0",
+    "git:github.com/avhagedorn/pi-compact-transcript",
+    "npm:pi-studio"
   ],
   "hideThinkingBlock": true,
   "outputPad": 0

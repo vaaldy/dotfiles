@@ -24,7 +24,8 @@ yazi/.config/yazi/             ->  ~/.config/yazi/
 ```fish
 cd ~/dotfiles
 
-stow alacritty niri nvim tmux fish noctalia mcp pi yazi
+stow alacritty niri nvim tmux fish noctalia mcp yazi
+mkdir -p ~/.pi/agent && stow --no-folding pi # keep Pi runtime state outside the repo
 stow -R niri                                  # re-link after adding files
 stow -D niri                                  # unlink
 stow -n -v alacritty                          # dry run
