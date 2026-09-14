@@ -20,7 +20,7 @@ link() {
 # macOS host configuration
 link "$here/macos/.config/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
 link "$here/macos/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
-link "$here/macos/.config/nvim" "$HOME/.config/nvim"
+link "$here/nvim/.config/nvim" "$HOME/.config/nvim"
 link "$here/macos/.gitconfig" "$HOME/.gitconfig"
 link "$here/macos/.config/git/ignore" "$HOME/.config/git/ignore"
 link "$here/macos/.config/fastfetch/config.jsonc" "$HOME/.config/fastfetch/config.jsonc"
