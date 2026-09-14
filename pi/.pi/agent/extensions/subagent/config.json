@@ -1,0 +1,9 @@
+{
+  "asyncByDefault": false,
+  "maxSubagentDepth": 1,
+  "maxSubagentSpawnsPerRun": 8,
+  "parallel": {
+    "maxTasks": 4,
+    "concurrency": 4
+  }
+}

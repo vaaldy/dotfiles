@@ -3,11 +3,24 @@
   "theme": "tokyo-night",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
+  "enabledModels": [
+    "openai-codex/*",
+    "openrouter/google/*"
+  ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
     "git:github.com/avhagedorn/pi-compact-transcript",
-    "npm:pi-studio"
+    "npm:pi-studio",
+    "npm:pi-subagents"
   ],
+  "subagents": {
+    "agentOverrides": {
+      "scout": {
+        "model": "openrouter/google/gemini-3.8-flash",
+        "thinking": "low"
+      }
+    }
+  },
   "hideThinkingBlock": true,
   "outputPad": 0
 }

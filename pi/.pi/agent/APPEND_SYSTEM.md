@@ -20,3 +20,9 @@ Make the smallest complete change that solves the requested problem.
 Before implementation, inspect relevant Markdown in the repository-root `prompts/` directory when it exists. Start with current status and task-specific documents, then relevant architecture documents. Treat them as potentially stale and verify only relevant claims against source code.
 
 `prompts/` may be an independently tracked nested Git repository. Never stage or commit its contents through the parent repository, and never add a Git remote to it.
+
+## Gemini subagent routing
+
+Route broad reading, repository mapping, extraction, comparison, and data analysis to `scout` or `data-auditor`. Make each Gemini task independent, read-only, bounded, and evidence-oriented. Include exact scope, paths, questions, exclusions, and expected output; require paths, symbols, representative evidence, uncertainties, and a concise verdict.
+
+Keep synthesis, architectural decisions, implementation, and final verification with the main Sol/Astra agent. After implementation, use a fresh reviewer when independent validation is useful. Do not use `researcher` until its required web-tool extension is deliberately configured.
