@@ -51,6 +51,26 @@ return {
     opts = {},
   },
 
+  -- ── markdown ──────────────────────────────────────────────────────────────
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown" },
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    keys = {
+      { "<leader>mp", "<cmd>RenderMarkdown toggle<CR>", desc = "Toggle Markdown rendering" },
+    },
+    opts = {},
+  },
+  {
+    "iamcco/markdown-preview.nvim",
+    ft = { "markdown" },
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    keys = {
+      { "<leader>mb", "<cmd>MarkdownPreviewToggle<CR>", desc = "Toggle Markdown browser preview" },
+    },
+    build = function() vim.fn["mkdp#util#install"]() end,
+  },
+
   -- ── fuzzy finding ─────────────────────────────────────────────────────────
   {
     "ibhagwan/fzf-lua",
