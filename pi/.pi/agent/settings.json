@@ -22,6 +22,7 @@
     "npm:pi-annotate",
     "npm:pi-jev"
   ],
+  "npmCommand": ["npm", "--allow-remote=all"],
   "subagents": {
     "agentOverrides": {
       "scout": {
