@@ -1,3 +1,7 @@
+## Shell navigation
+
+When locating a directory by name, try `z <name>` first. Fall back to `cd` with an explicit path or a filesystem search when zoxide has no match.
+
 ## Surgical coding
 
 Make the smallest complete change that solves the requested problem.
