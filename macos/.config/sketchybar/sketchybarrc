@@ -1,0 +1,133 @@
+#!/bin/bash
+# ~/.config/sketchybar/sketchybarrc   (chmod +x)
+#
+# SketchyBar (FelixKratz/SketchyBar) — the polybar/waybar equivalent for
+# macOS: fully custom, scriptable, replaces the stock menu bar. Fully
+# SIP-safe. Started as a brew service by install.sh's WM=yabai branch.
+# Tokyo Night Storm palette, matching alacritty/tmux/nvim/fastfetch/borders.
+# Uses JetBrainsMono Nerd Font, which install.sh already installs as a cask
+# for nvim/Alacritty — no extra font dependency here.
+
+CONFIG_DIR="$HOME/.config/sketchybar"
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+source "$CONFIG_DIR/colors.sh"
+
+# ── bar appearance ────────────────────────────────────────────────────────────
+# notch_width is how much dead space sketchybar reserves in the middle for the
+# MacBook's camera notch. 200 is the default; widen it if items still creep
+# under the notch, narrow it to claw back room. It applies ONLY to the internal
+# display, which is what makes the q/e split below degrade gracefully — see the
+# comment above the items.
+# Absorb the former margin/offset into the bar height so the same 44px is
+# occupied while the bar itself sits flush against the top edge.
+sketchybar --bar \
+  height=44 \
+  color=$BAR_COLOR \
+  border_width=0 \
+  topmost=on \
+  padding_left=10 \
+  padding_right=10 \
+  corner_radius=0 \
+  margin=0 \
+  y_offset=0 \
+  blur_radius=50 \
+  notch_width=250 \
+  notch_offset=0 \
+  position=top
+
+# ── item defaults ─────────────────────────────────────────────────────────────
+sketchybar --default \
+  icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
+  icon.color=$FG \
+  label.font="New York:Bold:16.0" \
+  label.color=$FG \
+  padding_left=5 \
+  padding_right=5 \
+  icon.padding_left=4 \
+  icon.padding_right=4 \
+  label.padding_left=4 \
+  label.padding_right=4
+
+# ── SPLIT AROUND THE NOTCH: q = left of notch, e = right of notch ────────────
+# Still centred, just as two clusters hugging the notch instead of one group
+# sitting underneath it. `center` put everything dead centre — which on the
+# built-in display is precisely where the camera notch is, so items vanished
+# behind it.
+#
+# `q` and `e` are sketchybar's dedicated notch-aware anchors. Dynamic app and
+# desktop items use explicit left-side insertion points below so they cannot
+# interleave.
+#
+# Extremities are still deliberately avoided: macOS's own menu bar owns those
+# (Apple/app menu far left, Control Center far right), and that stays true even
+# with auto-hide on, since hovering the top edge reveals it over whatever's
+# there.
+#
+# Center: applications, desktops, datetime. Right side: system controls.
+
+# Transparent insertion points keep dynamic apps and desktops in separate groups.
+sketchybar --add item spaces_end left \
+           --set spaces_end drawing=on icon.drawing=off label.drawing=off \
+                 background.drawing=on background.color=0x00000000 width=16
+
+sketchybar --add item apps_end q \
+           --set apps_end drawing=on icon.drawing=off label.drawing=off \
+                 background.drawing=on background.color=0x00000000 width=16
+
+# ── MIDDLE / NOTCH CLUSTER ───────────────────────────────────────────────────
+# clock
+sketchybar --add item clock e \
+           --set clock update_freq=10 icon="" icon.color=$YELLOW \
+                  script="$PLUGIN_DIR/clock.sh"
+
+# Inventory and focus updates are event-driven.
+sketchybar --add event window_focus \
+           --add item spaces_refresh left \
+           --set spaces_refresh drawing=off script="$PLUGIN_DIR/spaces.sh" \
+           --subscribe spaces_refresh display_change system_woke \
+           --add item apps_refresh q \
+           --set apps_refresh drawing=off script="$PLUGIN_DIR/apps.sh" \
+           --subscribe apps_refresh space_windows_change window_created window_destroyed system_woke \
+           --add item apps_focus q \
+           --set apps_focus drawing=off script="$PLUGIN_DIR/apps-focus.sh" \
+           --subscribe apps_focus front_app_switched window_focus
+
+# ── RIGHT CLUSTER ─────────────────────────────────────────────────────────────
+# A left padding on the glyph creates a deliberate gap after the date/time.
+sketchybar --add item volume_start right \
+           --set volume_start drawing=on icon.drawing=off label.drawing=off \
+                 background.drawing=on background.color=0x00000000 width=16
+
+sketchybar --add item volume_icon right \
+           --set volume_icon icon="󰕾" icon.color=$BLUE label.drawing=off \
+                  update_freq=15 \
+                  script="$PLUGIN_DIR/audio.sh" \
+                 padding_left=20 padding_right=2 \
+           --subscribe volume_icon system_woke
+
+# draggable system volume slider
+sketchybar --add slider volume right 110 \
+           --set volume slider.width=110 slider.knob="●" \
+                 slider.highlight_color=$BLUE \
+                 slider.background.color=0x664f5675 \
+                 slider.background.height=6 \
+                 slider.background.corner_radius=3 \
+                 update_freq=3 \
+                 script="$PLUGIN_DIR/volume.sh" \
+            --subscribe volume volume_change mouse.clicked system_woke
+
+sketchybar --add item volume_end right \
+           --set volume_end drawing=on icon.drawing=off label.drawing=off \
+                 background.drawing=on background.color=0x00000000 width=16
+
+# battery
+sketchybar --add item battery right \
+           --set battery update_freq=120 \
+                 script="$PLUGIN_DIR/battery.sh" \
+           --subscribe battery system_woke power_source_change
+
+"$PLUGIN_DIR/spaces.sh"
+"$PLUGIN_DIR/apps.sh"
+"$PLUGIN_DIR/volume.sh"
+"$PLUGIN_DIR/audio.sh"
+sketchybar --update

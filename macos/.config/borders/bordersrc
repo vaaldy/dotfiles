@@ -1,0 +1,21 @@
+#!/bin/bash
+# ~/.config/borders/bordersrc   (chmod +x)
+#
+# JankyBorders (FelixKratz/JankyBorders) — draws a highlight border around
+# the focused window. It's a separate overlay process, not a yabai
+# scripting-addition feature, so this needs zero SIP changes.
+#
+# Homebrew's `borders` service (started via `brew services start borders`)
+# execs this file, which builds the flag list and hands it to the `borders`
+# binary. Colors are Tokyo Night Storm — same values as alacritty.toml /
+# tmux.conf, and the same blue already referenced in wm/yabairc's comments.
+
+options=(
+  style=round
+  width=5.0
+  hidpi=on
+  active_color=0xff7aa2f7      # Tokyo Night blue
+  inactive_color=0xff414868    # Tokyo Night Storm dim border
+)
+
+borders "${options[@]}"
