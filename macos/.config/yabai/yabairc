@@ -1,0 +1,80 @@
+#!/usr/bin/env sh
+# ~/.config/yabai/yabairc   (chmod +x)
+#
+# Everything in this file works WITHOUT the scripting addition, i.e. with SIP
+# fully intact. Lines that need SA are commented and marked [SA].
+
+# ── scripting addition (optional) ───────────────────────────────────────────
+# Uncomment BOTH lines only if you have partially disabled SIP.
+# yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+# sudo yabai --load-sa
+
+# ── layout ───────────────────────────────────────────────────────────────────
+yabai -m config layout                      bsp
+yabai -m config window_placement            second_child
+yabai -m config auto_balance                off
+yabai -m config split_ratio                 0.50
+
+# ── gaps & padding ───────────────────────────────────────────────────────────
+yabai -m config top_padding                 24
+yabai -m config bottom_padding              24
+yabai -m config left_padding                24
+yabai -m config right_padding               24
+yabai -m config window_gap                  24
+
+# Reserve space for SketchyBar so tiled windows stop stacking underneath it.
+# `all:` applies to every display regardless of count/arrangement — no need
+# to special-case a specific monitor. SketchyBar occupies 44px at the top;
+# top_padding above still adds its own 8px gap between the bar and the first
+# tiled window, same as every other edge. Set to 0:0 if you ever drop it.
+yabai -m config external_bar                 all:44:0
+
+# ── focus & mouse ────────────────────────────────────────────────────────────
+yabai -m config focus_follows_mouse          off
+yabai -m config mouse_follows_focus          off
+yabai -m config mouse_modifier               fn
+yabai -m config mouse_action1                move
+yabai -m config mouse_action2                resize
+yabai -m config mouse_drop_action            swap
+
+# Drive app highlighting from focus events instead of polling every second.
+yabai -m signal --remove sketchybar_window_focus 2>/dev/null
+yabai -m signal --add label=sketchybar_window_focus event=window_focused \
+  action="sketchybar --trigger window_focus"
+
+# ── appearance ───────────────────────────────────────────────────────────────
+# [SA] these three silently do nothing without the scripting addition:
+# yabai -m config window_shadow               off
+# yabai -m config window_opacity              on
+# yabai -m config active_window_opacity       1.0
+# yabai -m config normal_window_opacity       0.92
+# Use FelixKratz/JankyBorders instead — it needs no SIP changes:
+#   brew install borders && borders active_color=0xff7aa2f7 width=4.0 &
+
+# ── what to leave alone ──────────────────────────────────────────────────────
+yabai -m rule --add app="^(System Settings|System Preferences)$"  manage=off
+yabai -m rule --add app="^(Calculator|Karabiner-Elements)$"       manage=off
+yabai -m rule --add app="^(Archive Utility|Disk Utility)$"        manage=off
+yabai -m rule --add app="^(Finder)$" title="^(Copy|Move|Info)"    manage=off
+yabai -m rule --add app="^Raycast$"                               manage=off
+yabai -m rule --add title="^(Preferences|Settings)$"              manage=off
+
+# ── what to definitely manage ────────────────────────────────────────────────
+yabai -m rule --add app="^Alacritty$"  manage=on
+yabai -m rule --add app="^(Ghostty|kitty|WezTerm)$" manage=on
+yabai -m rule --add app="^ParaView"    manage=on
+yabai -m rule --add app="^paraview$"   manage=on
+
+# WeChat used to report subrole:"" with can-move:false / can-resize:false —
+# a hard client-side Accessibility limitation, not fixable via yabai config
+# (confirmed via `yabai -m query --windows | jq '.[] | select(.app=="WeChat")'`
+# with the window both backgrounded and visible+focused). The App Store
+# update fixed WeChat's AX exposure, so it's tilable now — rule re-added.
+#
+# If WeChat's small popups (emoji picker, mini programs, incoming call) get
+# swept into the tiling grid along with the main chat window, narrow this to
+# just the main window by title instead:
+#   yabai -m rule --add app="^WeChat$" title="^WeChat$"        manage=on
+yabai -m rule --add app="^WeChat$" manage=on
+
+echo "yabai configuration loaded"

@@ -1,0 +1,188 @@
+# ~/.config/skhd/skhdrc
+#
+# Your requested surface: Option + A / D / R, plus Shift variants.
+# skhd calls the Option key `alt`.
+#
+# These six are the ONLY bindings that reach the window manager. Everything
+# else in the stack (Alacritty, tmux, nvim) deliberately avoids Alt, so there
+# is no collision anywhere — see terminal_setup.md.
+
+# ── focus ────────────────────────────────────────────────────────────────────
+# Falls back to the display edge, so A/D keeps working across two monitors.
+alt - a : yabai -m window --focus west  || yabai -m display --focus west
+alt - d : yabai -m window --focus east  || yabai -m display --focus east
+
+# ── move the window ──────────────────────────────────────────────────────────
+alt + shift - a : yabai -m window --warp west  || yabai -m window --display west
+alt + shift - d : yabai -m window --warp east  || yabai -m window --display east
+
+# Alt+Shift+F: zoom this window to fill the space (press again to restore).
+# NOTE the separator: skhd's grammar is `mod + mod - key`. Modifiers are joined
+# with `+`, but the final separator before the KEY is always `-`. Writing
+# `alt + shift + f` makes skhd expect a third modifier, hits `f`, and refuses
+# to load the whole file with `#28:15 expected modifier`.
+alt + shift - f : yabai -m window --toggle zoom-fullscreen
+alt - c : yabai-cycle-clients
+alt - r : yabai-layout-cycle shape
+alt + shift - r : yabai-layout-cycle width
+
+# ═════════════════════════════════════════════════════════════════════════════
+# WHAT EVERYONE ELSE BINDS THAT YOU DON'T
+# All Alt-only, so none of it collides with Alacritty / tmux / nvim.
+# None of it needs the scripting addition.
+# ═════════════════════════════════════════════════════════════════════════════
+
+# ── north/south (ACTIVE) ─────────────────────────────────────────────────────
+# BSP splits vertically as well as horizontally. With only west/east you will
+# eventually have a window you physically cannot reach from the keyboard.
+# 1/2 instead of arrows — same west/east pattern as alt-a/d: plain = focus,
+# shift = move (warp) the window.
+#
+# NOTE: 1/2 are also earmarked further down (commented) for "jump to space N"
+# and, under SA, "send window to space N". Both are inactive right now, so
+# there's no live conflict — but if you ever uncomment either of those, they
+# will silently override these two binds (skhd keeps only the last definition
+# for a given key combo). Keep at most one use of alt-1/2 active at a time.
+alt - 1 : yabai -m window --focus north || yabai -m display --focus north
+alt - 2 : yabai -m window --focus south || yabai -m display --focus south
+alt + shift - 1 : yabai -m window --warp north
+alt + shift - 2 : yabai -m window --warp south
+
+# ── toggle split (ACTIVE) ────────────────────────────────────────────────────
+# Flips the focused window's parent node between a horizontal and a vertical
+# split — the tool for reshaping the BSP tree (e.g. turning a 3-in-a-row
+# layout into a 2-stacked + 1-tall column) after a --warp merge. Also
+# controls WHERE the next new window opens, since it's the same axis.
+alt - s : yabai -m window --toggle split
+
+# Some apps simply shouldn't tile (Finder copy dialogs, calculators, pickers).
+# Toggles the focused window to floating, centred at half size.
+alt - t : yabai -m window --toggle float --grid 4:4:1:1:2:2
+
+# ── TIER 2: quality of life, widely used ─────────────────────────────────────
+# Reset a space whose proportions have drifted after lots of open/close.
+alt - 0 : yabai -m space --balance
+
+# Rotate the whole tree 90°, i.e. turn a vertical stack into a horizontal one.
+# alt - g : yabai -m space --rotate 90
+
+# Mirror the tree — useful on ultrawides when the important pane ends up
+# on your weak side.
+# alt - y : yabai -m space --mirror y-axis
+
+# Alt-tab within the space. Faster than directional focus for two-window flow.
+# alt - tab : yabai -m window --focus recent
+
+# ── stacked (tabbed) windows (ACTIVE) ────────────────────────────────────────
+# Pile several windows into one slot and cycle them — closest thing BSP has to
+# browser tabs. alt-m stacks the NEXT window onto this one; . and , then cycle
+# through the pile (mnemonic: same keys as < > without shift).
+#
+# --stack only works when there IS another MANAGED window in the same space to
+# stack with. If the target is floating or unmanaged (e.g. anything matched by
+# a `manage=off` rule in yabairc) it fails silently — that's not a keybind
+# problem. To unstack later, --warp the window back out in any direction.
+# 0x2F is `.` and 0x2B is `,` (Apple kVK_ANSI_Period / kVK_ANSI_Comma). Written
+# as keycodes rather than literal `.` / `,` on purpose: skhd's grammar defines a
+# literal as "single letter or built-in keyword", and punctuation isn't a
+# documented literal. A key skhd can't parse makes it reject the ENTIRE file,
+# taking every other bind down with it — not worth the risk for two keys.
+# Keycodes are explicitly supported, so these always parse.
+alt - m    : yabai -m window --stack next
+alt - 0x2F : yabai -m window --focus stack.next
+alt - 0x2B : yabai -m window --focus stack.prev
+
+# UNSTACK. `--warp <dir>` is the commonly-cited method, but it only works when
+# there's an adjacent MANAGED window to warp into — if the stack is the only
+# thing in the space, warp silently no-ops (yabai issue #1252, "Can't warp out
+# of a stack unless managed window located"). The double float-toggle is the
+# maintainer's own answer and works unconditionally: floating pops the window
+# clean out of the tree, un-floating re-inserts it as a normal tiled window
+# rather than back into the stack.
+# Caveat: it re-enters per your window_placement rule (second_child), so it may
+# land somewhere other than where it originally sat. Warp it after if you care.
+alt + shift - m : yabai -m window --toggle float; yabai -m window --toggle float
+
+# Multi-monitor: throw the window to the other display and follow it.
+# alt + shift - g : yabai -m window --display next --focus
+# alt + shift - h : yabai -m window --display prev --focus
+
+# ── TIER 3: taste ────────────────────────────────────────────────────────────
+# Optional explicit four-way resize, alongside the layout controller.
+# left/right are safe to enable on their own; alt-r already covers resize
+# for the up/down axis anyway.
+# alt + shift - left  : yabai -m window --resize left:-60:0
+# alt + shift - right : yabai -m window --resize right:60:0
+# alt + shift - up    : yabai -m window --resize bottom:0:-60
+# alt + shift - down  : yabai -m window --resize bottom:0:60
+
+# Toggle the whole space between tiling, stacking, and free-floating.
+# alt - b : yabai -m space --layout "$(yabai -m query --spaces --space | \
+#           sed -n 's/.*"type":"\([a-z]*\)".*/\1/p' | grep -q bsp && echo float || echo bsp)"
+
+# Gaps on/off — handy when you want maximum screen for one task.
+# alt - v : yabai -m space --toggle padding; yabai -m space --toggle gap
+
+# Launch a new terminal window.
+# alt - return : open -na Alacritty
+
+# Reload yabai without touching the terminal.
+# alt + shift - q : yabai --restart-service
+
+# ── SPACES ───────────────────────────────────────────────────────────────────
+# Both of yabai's space commands need the scripting addition, i.e. partially
+# disabled SIP. With SIP intact they fail outright:
+#   $ yabai -m space --focus 2
+#   cannot focus space due to an error with the scripting-addition
+# The SA-native binds are collected in one place further down this file.
+
+# ── SA-free space switching (ACTIVE) ─────────────────────────────────────────
+# skhd -k synthesizes a keypress, so these just fire macOS's own space
+# shortcuts. No scripting addition, no SIP changes.
+#
+# Ctrl+Left / Ctrl+Right are enabled by default on macOS, unlike the
+# "Switch to Desktop N" shortcuts — so these two work with zero setup.
+# Q/W instead of 1/2: home-row adjacent to A/D/R, no hand travel to the
+# number row.
+alt - q : yabai-cycle-space prev
+alt - w : yabai-cycle-space next
+
+# If you'd rather jump to a specific space than step left/right, these use
+# the number row on purpose — it matches how you already think about space
+# numbers. First enable them in System Settings > Keyboard > Keyboard
+# Shortcuts > Mission Control > "Switch to Desktop 1..N" (off by default).
+# NOTE: alt-1/2 are now taken by north/south window focus above — enabling
+# these would silently override that. Use 3/4 (or renumber) if you want both.
+# alt - 1 : skhd -k "ctrl - 1"
+# alt - 2 : skhd -k "ctrl - 2"
+# alt - 3 : skhd -k "ctrl - 3"
+# alt - 4 : skhd -k "ctrl - 4"
+
+# There is NO equivalent trick for MOVING a window to another space — macOS
+# exposes no shortcut for it, so that one genuinely requires the scripting
+# addition. Dragging in Mission Control is the only SIP-intact alternative.
+
+# ── [SA] the yabai-native versions, if you ever disable SIP ──────────────────
+# Instant: no slide animation, and direct jumps instead of stepping.
+# Swap these in for the two `skhd -k` lines above.
+# NOTE: alt-1/2 and alt+shift-1/2 collide with north/south window focus/warp
+# active up top — same "alt-1/2 is double-booked" caveat as the block above.
+#
+# alt - 1 : yabai -m space --focus 1
+# alt - 2 : yabai -m space --focus 2
+# alt - 3 : yabai -m space --focus 3
+# alt - 4 : yabai -m space --focus 4
+# alt - z : yabai -m space --focus recent
+# alt - x : yabai -m space --focus prev || yabai -m space --focus last
+# alt - c : yabai -m space --focus next || yabai -m space --focus first
+#
+# Send the focused window to a space and follow it — the thing with no
+# SIP-intact workaround at all:
+# alt + shift - 1 : yabai -m window --space 1 --focus
+# alt + shift - 2 : yabai -m window --space 2 --focus
+# alt + shift - 3 : yabai -m window --space 3 --focus
+# alt + shift - 4 : yabai -m window --space 4 --focus
+#
+# Create / destroy spaces on the fly:
+# alt + shift - n : yabai -m space --create
+# alt + shift - x : yabai -m space --destroy

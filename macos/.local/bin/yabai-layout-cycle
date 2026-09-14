@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# yabai-layout-cycle [shape|width]
+#
+# Rebuilds the focused space into a small set of intentional BSP layouts.
+# shape:  main + stacked side -> 50/25/25 -> equal columns
+# width:  change the main-versus-rest ratio inside the active shape
+set -euo pipefail
+
+mode="${1:-shape}"
+state_dir="${TMPDIR:-/tmp}/yabai-layout"
+mkdir -p "$state_dir"
+
+command -v yabai >/dev/null 2>&1 || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+
+space_json="$(yabai -m query --spaces --space 2>/dev/null || true)"
+windows_json="$(yabai -m query --windows --space 2>/dev/null || true)"
+[[ -n "$space_json" && -n "$windows_json" ]] || exit 0
+
+space_id="$(jq -r '.id' <<<"$space_json")"
+main="$(yabai -m query --windows --window 2>/dev/null | jq -r '.id // empty')"
+windows=()
+while IFS= read -r id; do
+  [[ -n "$id" ]] && windows+=("$id")
+done < <(jq -r '.[] | select(."is-floating" == false and ."is-visible" == true and .layer == "normal") | .id' <<<"$windows_json")
+
+[[ ${#windows[@]} -gt 1 && -n "$main" ]] || exit 0
+
+contains_main=0
+for id in "${windows[@]}"; do
+  [[ "$id" == "$main" ]] && contains_main=1
+done
+[[ $contains_main == 1 ]] || exit 0
+
+shape_file="$state_dir/$space_id.shape"
+width_file="$state_dir/$space_id.width"
+shape=2
+width=2
+[[ -f "$shape_file" ]] && shape="$(<"$shape_file")"
+[[ -f "$width_file" ]] && width="$(<"$width_file")"
+[[ "$shape" =~ ^[0-2]$ ]] || shape=0
+[[ "$width" =~ ^[0-2]$ ]] || width=0
+
+if [[ "$mode" == "shape" ]]; then
+  shape=$(( (shape + 1) % 3 ))
+elif [[ "$mode" == "width" ]]; then
+  width=$(( (width + 1) % 3 ))
+else
+  exit 2
+fi
+
+printf '%s' "$shape" >"$shape_file"
+printf '%s' "$width" >"$width_file"
+
+display_json="$(yabai -m query --displays --display 2>/dev/null || true)"
+display_w="$(jq -r '.frame.w // 0' <<<"$display_json")"
+display_h="$(jq -r '.frame.h // 0' <<<"$display_json")"
+if awk -v w="$display_w" -v h="$display_h" 'BEGIN { exit !(w >= h) }'; then
+  main_edge=east
+  stack_edge=south
+else
+  main_edge=south
+  stack_edge=east
+fi
+
+# Put the focused window first, then preserve the remaining windows' current
+# order while making a side stack or a horizontal column chain.
+others=()
+for id in "${windows[@]}"; do
+  [[ "$id" == "$main" ]] || others+=("$id")
+done
+
+anchor="$main"
+for id in "${others[@]}"; do
+  if [[ "$shape" == 0 ]]; then
+    direction="$main_edge"
+    [[ "$anchor" == "$main" ]] || direction="$stack_edge"
+  else
+    direction="$main_edge"
+  fi
+  yabai -m window --focus "$anchor" >/dev/null 2>&1 || true
+  yabai -m window "$id" --warp "$direction" >/dev/null 2>&1 || true
+  anchor="$id"
+done
+
+# Balance first so the side subtree is even, then size the main branch.
+yabai -m space --balance >/dev/null 2>&1 || true
+
+count=${#windows[@]}
+case "$shape:$width" in
+  0:0) ratio=0.65 ;; 0:1) ratio=0.60 ;; 0:2) ratio=0.50 ;;
+  1:0) ratio=0.50 ;; 1:1) ratio=0.60 ;; 1:2) ratio=0.40 ;;
+  2:0) ratio="$(awk -v n="$count" 'BEGIN { printf "%.4f", 1/n }')" ;;
+  2:1) ratio="$(awk -v n="$count" 'BEGIN { printf "%.4f", 1/(n-1) }')" ;;
+  2:2) ratio=0.50 ;;
+esac
+
+yabai -m window --focus "$main" >/dev/null 2>&1 || true
+child="$(yabai -m query --windows --window 2>/dev/null | jq -r '."split-child" // "first_child"')"
+if [[ "$child" == "second_child" ]]; then
+  ratio="$(awk -v r="$ratio" 'BEGIN { printf "%.4f", 1-r }')"
+fi
+yabai -m window --ratio "abs:$ratio" >/dev/null 2>&1 || true
