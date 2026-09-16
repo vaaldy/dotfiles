@@ -4,7 +4,7 @@ description: Focused read-only data audit using Python or repository analysis to
 advertise: true
 tools: read, grep, find, ls, bash
 model: openrouter/google/gemini-3.8-flash
-thinking: low
+thinking: medium
 systemPromptMode: replace
 inheritProjectContext: true
 inheritSkills: false

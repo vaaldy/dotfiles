@@ -23,6 +23,21 @@ Before implementation, inspect relevant Markdown in the repository-root `prompts
 
 ## Gemini subagent routing
 
-Route broad reading, repository mapping, extraction, comparison, and data analysis to `scout` or `data-auditor`. Make each Gemini task independent, read-only, bounded, and evidence-oriented. Include exact scope, paths, questions, exclusions, and expected output; require paths, symbols, representative evidence, uncertainties, and a concise verdict.
+Use Gemini 3.8 Flash at medium thinking for repository mapping, broad reading, extraction, comparison, data analysis, web research, and independent review.
 
-Keep synthesis, architectural decisions, implementation, and final verification with the main Sol/Astra agent. After implementation, use a fresh reviewer when independent validation is useful. Do not use `researcher` until its required web-tool extension is deliberately configured.
+Construct each Gemini task as an independent evidence contract:
+
+- exact objective
+- exact paths, sources, or data scope
+- explicit exclusions
+- read-only authority unless explicitly approved otherwise
+- concrete questions
+- required evidence format
+- stop conditions
+- concise verdict and unresolved uncertainties
+
+Use fresh context. Avoid passing narrative conversation history, reflective assistant prose, or unrelated parent context. State required tool use explicitly rather than relying on the child to initiate optional tools.
+
+Launch `researcher` and `evidence-auditor` asynchronously so their pi-web-access tools load in the detached child runtime. Use at most three independent Gemini lanes by default, and do not create overlapping scouts.
+
+The main Sol/Astra agent owns synthesis, architectural decisions, source mutation, test execution, conflict resolution, and final acceptance. Treat child output as evidence, not authority.
