@@ -12,7 +12,8 @@
     "git:github.com/avhagedorn/pi-compact-transcript",
     "npm:pi-studio",
     "npm:pi-subagents",
-    "npm:pi-web-access"
+    "npm:pi-web-access",
+    "npm:pi-intercom"
   ],
   "subagents": {
     "agentOverrides": {
