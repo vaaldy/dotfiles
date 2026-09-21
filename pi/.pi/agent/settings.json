@@ -5,7 +5,8 @@
   "defaultModel": "gpt-5.6-sol",
   "enabledModels": [
     "openai-codex/*",
-    "openrouter/google/*"
+    "openrouter/google/*",
+    "openrouter/openai/*"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
