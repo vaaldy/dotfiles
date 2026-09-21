@@ -4,9 +4,11 @@
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
   "enabledModels": [
-    "openai-codex/*",
-    "openrouter/google/*",
-    "openrouter/openai/*"
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-6-astra",
+    "openrouter/openai/gpt-5.6-terra",
+    "openrouter/openai/gpt-5.6-luna",
+    "openrouter/google/*"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
