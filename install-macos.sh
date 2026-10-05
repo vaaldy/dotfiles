@@ -40,7 +40,9 @@ done
 
 # Shared configuration owned by main
 link "$here/mcp/.config/mcp/mcp.json" "$HOME/.config/mcp/mcp.json"
-link "$here/yazi/.config/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
+for config in "$here"/yazi/.config/yazi/*; do
+  link "$config" "$HOME/.config/yazi/$(basename "$config")"
+done
 
 pi="$here/pi/.pi/agent"
 link "$pi/settings.json" "$HOME/.pi/agent/settings.json"

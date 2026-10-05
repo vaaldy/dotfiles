@@ -1,0 +1,4 @@
+[[mgr.prepend_keymap]]
+on = "<C-c>"
+run = ["yank", 'plugin clipboard -- --action=copy']
+desc = "Copy selected files to system clipboard"
