@@ -15,6 +15,17 @@ Make the smallest complete change that solves the requested problem.
 - Inspect the final diff and remove anything not required by the request.
 - Never modify unrelated code without asking.
 
+## Jev completion check
+
+For implementation tasks, run one batched `or_jev_evaluate` check after relevant tests and final diff inspection, before claiming completion. Do not gate every tool call. The main agent owns this check; delegated children supply evidence, not duplicate Jev checks.
+
+- Supply the current user request, acceptance criteria, exclusions, task-only diff with relevant source context, actual test commands/results, and proposed completion claims. Separate pre-existing user changes; never attribute them to the task.
+- Ask separate, evidence-specific questions: does each suspect hunk change unrelated behavior; does it add an unnecessary abstraction/dependency or remove a required safeguard; is each material completion claim supported by the supplied evidence? Use hunk/claim IDs to locate flags. Do not ask one vague "is this correct?" question.
+- Treat probabilities as advisory signals, not proof of correctness or authorization. Inspect flagged or ambiguous items against source, fix confirmed issues, and rerun affected tests. Do not automatically revert changes, approve actions, or loop until Jev agrees. Report material changes made after the check as not Jev-rechecked.
+- Keep file/path limits, delegation authorization, credential protection, and test exit-status checks deterministic. Jev never replaces source tracing, tests, required independent review, or human approval.
+- Use OpenRouter by default; use TypeSafe-direct only when explicitly requested and available. If Jev is unavailable, errors, or the evidence cannot fit the tool's limits without losing necessary context, perform the manual check and disclose the limitation. Never silently truncate evidence or claim a Jev pass.
+- Send only task-relevant, non-secret evidence permitted for the selected provider. Do not send credentials or restricted repository/customer data. Avoid invented probability thresholds; confidence is not an accuracy guarantee.
+
 ## Project documentation
 
 Before implementation, inspect relevant Markdown in the repository-root `prompts/` directory when it exists. Start with current status and task-specific documents, then relevant architecture documents. Treat them as potentially stale and verify only relevant claims against source code.
