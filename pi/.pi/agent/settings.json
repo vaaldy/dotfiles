@@ -1,8 +1,8 @@
 {
   "lastChangelogVersion": "0.85.1",
   "theme": "tokyo-night",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6.1-sol",
+  "defaultProvider": "openrouter",
+  "defaultModel": "openai/gpt-6.1-sol",
   "enabledModels": [
     "openai-codex/gpt-*",
     "openrouter/openai/gpt-*",
