@@ -158,11 +158,18 @@ export default function (pi: ExtensionAPI) {
    - Switch back to `dclib`.
    - `pi-dclib` reads `01_DCWIZ_CHANGES.md`, updates imports/calls, and runs end-to-end tests.
 
-6. **Push & PR Creation:**
+6. **Aggregate Completion Check (Before Push/PR):**
+   - The coordinating main agent applies **Jev completion check** from `pi/.pi/agent/APPEND_SYSTEM.md` after integration tests and final diff inspection.
+   - Make one batched `or_jev_evaluate` call for the cross-repository task, not one per worker or tool call. Supply `00_SPEC.md` requirements/exclusions, task-only diffs labeled by repository and hunk, relevant source context, actual dependency/integration test commands/results, and proposed completion claims. Exclude pre-existing user changes and secrets/restricted data.
+   - Check for unrelated behavior, unnecessary abstractions/dependencies, removed safeguards, and unsupported claims. A dependency-repo test does not establish that consuming-repo integration passes.
+   - Inspect flags manually; the owning repository agent fixes confirmed issues and reruns affected tests. No automatic cross-repo edits or reverts, and no repeated calls until Jev agrees. Identify material post-check changes as not Jev-rechecked.
+   - Record the check's advisory outcome and unresolved concerns in `02_DCLIB_INTEGRATION.md`. If Jev is unavailable or the evidence cannot fit without losing necessary context, record manual review and the limitation. A Jev score never grants push/PR authorization or substitutes for required independent review.
+
+7. **Push & PR Creation:**
    - Both worktree directories are already on `feat/stream-v2`.
    - In each worktree: `git push -u origin feat/stream-v2 && gh pr create`.
 
-7. **Clean Teardown (After Merging Upstream):**
+8. **Clean Teardown (After Merging Upstream):**
    ```bash
    git -C ~/projects/dclib worktree remove ../dclib-worktrees/feat-stream-v2
    git -C ~/projects/dcwiz-task-library worktree remove ../dcwiz-task-library-worktrees/feat-stream-v2
