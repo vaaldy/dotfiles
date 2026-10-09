@@ -15,6 +15,11 @@ Make the smallest complete change that solves the requested problem.
 - Inspect the final diff and remove anything not required by the request.
 - Never modify unrelated code without asking.
 
+## Commit messages
+
+- Start each commit subject with `[fix]`, `[merge]`, `[chore]`, or `[try]`, followed by a concise summary.
+- Keep the entire subject lowercase.
+
 ## Jev completion check
 
 For implementation tasks, run one batched `or_jev_evaluate` check after relevant tests and final diff inspection, before claiming completion. Do not gate every tool call. The main agent owns this check; delegated children supply evidence, not duplicate Jev checks.
