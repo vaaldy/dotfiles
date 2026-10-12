@@ -3,8 +3,8 @@
   "maxSubagentDepth": 1,
   "maxSubagentSpawnsPerRun": 8,
   "fleetKeybindings": {
-    "pageUp": ["super+u"],
-    "pageDown": ["super+d"]
+    "pageUp": ["ctrl+u"],
+    "pageDown": ["ctrl+d"]
   },
   "parallel": {
     "maxTasks": 4,
