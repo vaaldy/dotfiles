@@ -2,6 +2,10 @@
   "asyncByDefault": false,
   "maxSubagentDepth": 1,
   "maxSubagentSpawnsPerRun": 8,
+  "fleetKeybindings": {
+    "pageUp": ["super+u"],
+    "pageDown": ["super+d"]
+  },
   "parallel": {
     "maxTasks": 4,
     "concurrency": 4
