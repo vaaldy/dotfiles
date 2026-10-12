@@ -50,6 +50,7 @@ link "$pi/compact-transcript.json" "$HOME/.pi/agent/compact-transcript.json"
 for extension in "$pi"/extensions/*.ts; do
   link "$extension" "$HOME/.pi/agent/extensions/$(basename "$extension")"
 done
+link "$pi/extensions/subagent/config.json" "$HOME/.pi/agent/extensions/subagent/config.json"
 for script in "$pi"/scripts/*; do
   link "$script" "$HOME/.pi/agent/scripts/$(basename "$script")"
 done
