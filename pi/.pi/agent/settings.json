@@ -11,6 +11,7 @@
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
     "git:github.com/avhagedorn/pi-compact-transcript",
+    "npm:pi-smart-compact",
     "npm:pi-studio",
     "npm:pi-subagents",
     "npm:pi-web-access",
