@@ -6,7 +6,8 @@
   "enabledModels": [
     "openai-codex/gpt-*",
     "openrouter/openai/gpt-*",
-    "openrouter/google/*"
+    "openrouter/google/*",
+    "opencode-go/deepseek-v4.1-flash"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
@@ -20,24 +21,25 @@
     "npm:pi-jev"
   ],
   "subagents": {
+    "defaultModel": "opencode-go/deepseek-v4.1-flash",
     "agentOverrides": {
       "scout": {
-        "model": "openrouter/google/gemini-3.8-flash",
+        "model": "opencode-go/deepseek-v4.1-flash",
         "thinking": "medium",
         "defaultContext": "fresh"
       },
       "researcher": {
-        "model": "openrouter/google/gemini-3.8-flash",
+        "model": "opencode-go/deepseek-v4.1-flash",
         "thinking": "medium",
         "defaultContext": "fresh"
       },
       "reviewer": {
-        "model": "openrouter/google/gemini-3.8-flash",
+        "model": "opencode-go/deepseek-v4.1-flash",
         "thinking": "medium",
         "defaultContext": "fresh"
       },
       "evidence-auditor": {
-        "model": "openrouter/google/gemini-3.8-flash",
+        "model": "opencode-go/deepseek-v4.1-flash",
         "thinking": "high",
         "defaultContext": "fresh"
       }

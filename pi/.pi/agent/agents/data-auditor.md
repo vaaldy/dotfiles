@@ -3,7 +3,7 @@ name: data-auditor
 description: Focused read-only data audit using Python or repository analysis tools
 advertise: true
 tools: read, grep, find, ls, bash
-model: openrouter/google/gemini-3.8-flash
+model: opencode-go/deepseek-v4.1-flash
 thinking: medium
 systemPromptMode: replace
 inheritProjectContext: true
