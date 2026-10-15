@@ -1,40 +1,5 @@
 {
   "providers": {
-    "openrouter": {
-      "models": [
-        {
-          "id": "google/gemini-4-argon",
-          "name": "Google: Gemini 4 Argon",
-          "api": "openai-completions",
-          "baseUrl": "https://openrouter.ai/api/v1",
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "off": null,
-            "minimal": null,
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": null,
-            "max": null
-          },
-          "input": ["text", "image"],
-          "cost": {
-            "input": 2,
-            "output": 10,
-            "cacheRead": 0.1,
-            "cacheWrite": 0.1875
-          },
-          "contextWindow": 1048576,
-          "maxTokens": 65536,
-          "compat": {
-            "supportsDeveloperRole": false,
-            "thinkingFormat": "openrouter",
-            "supportsStrictMode": true,
-            "sendSessionAffinityHeaders": true
-          }
-        }
-      ]
-    },
     "openai-codex": {
       "modelOverrides": {
         "gpt-5.6-luna": {
