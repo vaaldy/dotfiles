@@ -7,7 +7,9 @@
     "openai-codex/gpt-*",
     "openrouter/openai/gpt-*",
     "openrouter/google/*",
-    "opencode-go/deepseek-v4.1-flash"
+    "opencode-go/deepseek-v4.1-flash",
+    "opencode-go/qwen3.8-flash",
+    "opencode-go/qwen3.8-max"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
