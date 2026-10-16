@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.0.2",
+  "lastChangelogVersion": "1.2.0",
   "theme": "tokyo-night",
   "defaultProvider": "openrouter",
   "defaultModel": "openai/gpt-6.1-sol",
@@ -9,7 +9,8 @@
     "openrouter/google/*",
     "opencode-go/deepseek-v4.1-flash",
     "opencode-go/qwen3.8-flash",
-    "opencode-go/qwen3.8-max"
+    "opencode-go/qwen3.8-max",
+    "dgx/local-inference-lab/Qwen3.8-Flash-Next-NVFP4"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
