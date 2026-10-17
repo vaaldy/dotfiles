@@ -68,7 +68,7 @@ return {
     keys = {
       { "<leader>mb", "<cmd>MarkdownPreviewToggle<CR>", desc = "Toggle Markdown browser preview" },
     },
-    build = function() vim.fn["mkdp#util#install"]() end,
+    build = ":call mkdp#util#install_sync()",
   },
 
   -- ── fuzzy finding ─────────────────────────────────────────────────────────
