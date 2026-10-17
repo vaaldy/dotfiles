@@ -26,5 +26,7 @@ nvim/.config/nvim/plugin/
 # Pi credentials and runtime state
 pi/.pi/agent/auth.json
 pi/.pi/agent/models-store.json
+# ccmux-managed pi extension, rewritten by `ccmux setup`
+pi/.pi/agent/extensions/ccmux.js
 pi/.pi/agent/npm/
 pi/.pi/agent/sessions/
