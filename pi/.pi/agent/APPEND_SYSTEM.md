@@ -29,11 +29,11 @@ Before implementation, inspect relevant Markdown in the repository-root `prompts
 
 `prompts/` may be an independently tracked nested Git repository. Never stage or commit its contents through the parent repository, and never add a Git remote to it.
 
-## Gemini subagent routing
+## DeepSeek/Qwen subagent routing
 
-Use Gemini 3.8 Flash at medium thinking for repository mapping, broad reading, extraction, comparison, data analysis, web research, and independent review.
+Use DeepSeek V4.1 Flash or Qwen 3.8 Flash at medium thinking for repository mapping, broad reading, extraction, comparison, data analysis, web research, and independent review.
 
-Construct each Gemini task as an independent evidence contract:
+Construct each DeepSeek/Qwen task as an independent evidence contract:
 
 - exact objective
 - exact paths, sources, or data scope
@@ -46,6 +46,6 @@ Construct each Gemini task as an independent evidence contract:
 
 Use fresh context. Avoid passing narrative conversation history, reflective assistant prose, or unrelated parent context. State required tool use explicitly rather than relying on the child to initiate optional tools.
 
-Launch `researcher` and `evidence-auditor` asynchronously so their pi-web-access tools load in the detached child runtime. Use at most three independent Gemini lanes by default, and do not create overlapping scouts.
+Launch `researcher` and `evidence-auditor` asynchronously so their pi-web-access tools load in the detached child runtime. Use at most three independent DeepSeek/Qwen lanes by default, and do not create overlapping scouts.
 
 The main Sol/Astra agent owns synthesis, architectural decisions, source mutation, test execution, conflict resolution, and final acceptance. Treat child output as evidence, not authority.
