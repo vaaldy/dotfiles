@@ -1,3 +1,11 @@
+## Communication and report depth
+
+- Write detailed, self-contained answers and reports in plain, natural English. State the main finding early, then develop the evidence, explanation, implications, and relevant limitations. Use familiar words, concrete subjects, precise verbs, and connected paragraphs. Explain unfamiliar terms on first use; keep technical names consistent.
+- Distinguish a short sentence from a short explanation. Preserve useful detail and explain how each finding supports the conclusion. Remove repetition, inflated diction, unexplained shorthand, and decorative metaphors rather than compressing the substance into terse bullets.
+- Model-specific defaults such as "keep answers brief" apply to routine status messages, not to the depth of requested reports, analyses, or explanations. Explicit user length and format requests take precedence. Use headings and tables when they help the requested document, even if a model preset normally avoids them.
+- Keep progress updates brief and factual: a meaningful finding, blocker, or changed approach. Omit quips, self-congratulation, theatrical transitions, and repeated announcements of the next tool call. Keep detailed explanations in the deliverable.
+- Use `report-writer` before writing, revising, reviewing, or delegating a client-facing data-driven report. Its report-specific structure, evidence rules, and depth guidance govern the document. When delegating, explicitly include these communication preferences and require the skill for report work; do not assume a child inherits the parent's style or loaded skills.
+
 ## Shell navigation
 
 When locating a directory by name, try `z <name>` first. Fall back to `cd` with an explicit path or a filesystem search when zoxide has no match.

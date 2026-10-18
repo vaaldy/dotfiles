@@ -20,9 +20,13 @@
     "npm:pi-web-access",
     "npm:pi-intercom",
     "npm:pi-annotate",
-    "npm:pi-jev"
+    "npm:pi-jev",
+    "npm:pi-model-system-prompt@0.2.1"
   ],
   "subagents": {
+    "defaultSubagentOnlyExtensions": [
+      "~/.pi/agent/npm/node_modules/pi-model-system-prompt/index.ts"
+    ],
     "defaultModel": "opencode-go/deepseek-v4.1-flash",
     "agentOverrides": {
       "scout": {
