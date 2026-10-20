@@ -24,6 +24,18 @@ graph TD
 - **macOS desktop:** yabai + skhd + SketchyBar
 - **Coding agent:** [Pi](https://github.com/earendil-works/pi)
 
+## Pi subagent routing
+
+Keep the frontier parent on design, implementation, analysis scripts, and final acceptance. Delegate only when authorized, using fresh context and compact, independently verifiable tasks.
+
+- **DGX Qwen** (`dgx/nvidia/Qwen3.8-Flash-Next-FP4-Local`): first choice when configured and reachable; keep its endpoint configuration local.
+- **OpenCode Go**: otherwise use DeepSeek v4.1 Flash (`opencode-go/deepseek-v4.1-flash`) for scouting, extraction, data analysis, research, and review, or Qwen 3.8 Flash (`opencode-go/qwen3.8-flash`) for prepared runner jobs, not open-ended coding. Select the model explicitly for each launch; the shared settings default remains DeepSeek.
+- **Luna** (`openai-codex/gpt-6-luna` when available): explicit fallback for tasks the low-cost tier cannot handle. Report failed launches before retrying or switching; OpenRouter is not required.
+
+These replace Gemini 3.8 Flash as the preferred low-cost subagent tier. Routing instructions live in `pi/.pi/agent/APPEND_SYSTEM.md`; defaults and role overrides live in `pi/.pi/agent/settings.json`.
+
+Use the DCTwin α_rec/EC pattern: the parent prepares and checks the runner and analysis code, then asynchronous runners execute independent lanes with exact commands, isolated output paths, expected artifacts, and exit-status checks. Permit only explicitly scoped surgical fixes; escalate design changes. Default to at most three lanes, with larger fanouts explicitly budgeted and no overlapping source writers. The parent verifies artifacts and synthesizes results.
+
 ## Setup
 
 Check out the branch for the current machine.
