@@ -23,17 +23,37 @@ Make the smallest complete change that solves the requested problem.
 - Inspect the final diff and remove anything not required by the request.
 - Never modify unrelated code without asking.
 
+## Commit messages
+
+- Start each commit subject with `[fix]`, `[merge]`, `[chore]`, or `[try]`, followed by a concise summary.
+- Keep the entire subject lowercase.
+
+## Jev completion check
+
+For implementation tasks, run one batched `or_jev_evaluate` check after relevant tests and final diff inspection, before claiming completion. Do not gate every tool call. The main agent owns this check; delegated children supply evidence, not duplicate Jev checks.
+
+- Supply the current user request, acceptance criteria, exclusions, task-only diff with relevant source context, actual test commands/results, and proposed completion claims. Separate pre-existing user changes; never attribute them to the task.
+- Ask separate, evidence-specific questions: does each suspect hunk change unrelated behavior; does it add an unnecessary abstraction/dependency or remove a required safeguard; is each material completion claim supported by the supplied evidence? Use hunk/claim IDs to locate flags. Do not ask one vague "is this correct?" question.
+- Treat probabilities as advisory signals, not proof of correctness or authorization. Inspect flagged or ambiguous items against source, fix confirmed issues, and rerun affected tests. Do not automatically revert changes, approve actions, or loop until Jev agrees. Report material changes made after the check as not Jev-rechecked.
+- Keep file/path limits, delegation authorization, credential protection, and test exit-status checks deterministic. Jev never replaces source tracing, tests, required independent review, or human approval.
+- Use OpenRouter by default; use TypeSafe-direct only when explicitly requested and available. If Jev is unavailable, errors, or the evidence cannot fit the tool's limits without losing necessary context, perform the manual check and disclose the limitation. Never silently truncate evidence or claim a Jev pass.
+- Send only task-relevant, non-secret evidence permitted for the selected provider. Do not send credentials or restricted repository/customer data. Avoid invented probability thresholds; confidence is not an accuracy guarantee.
+
 ## Project documentation
 
 Before implementation, inspect relevant Markdown in the repository-root `prompts/` directory when it exists. Start with current status and task-specific documents, then relevant architecture documents. Treat them as potentially stale and verify only relevant claims against source code.
 
 `prompts/` may be an independently tracked nested Git repository. Never stage or commit its contents through the parent repository, and never add a Git remote to it.
 
-## DeepSeek/Qwen subagent routing
+## Low-cost subagent routing
 
-Use DeepSeek V4.1 Flash or Qwen 3.8 Flash at medium thinking for repository mapping, broad reading, extraction, comparison, data analysis, web research, and independent review.
+Prefer DGX Qwen (`dgx/nvidia/Qwen3.8-Flash-Next-FP4-Local`) when configured and reachable; otherwise use OpenCode Go subagents: DeepSeek v4.1 Flash (`opencode-go/deepseek-v4.1-flash`) or Qwen 3.8 Flash (`opencode-go/qwen3.8-flash`) at medium thinking. Use DeepSeek for repository mapping, broad reading, extraction, comparison, data analysis, web research, and independent review; prefer Qwen for bounded runner tasks. Keep this routing policy shared across systems; DGX endpoint configuration stays local. These replace Gemini 3.8 Flash as the preferred low-cost tier.
 
-Construct each DeepSeek/Qwen task as an independent evidence contract:
+The frontier parent designs and writes the implementation, run scripts, analysis, and checks first. Give Qwen runners exact commands, inputs, isolated output paths, expected artifacts, and exit-status checks. Runners execute and monitor prepared code, verify outputs, and make only explicitly authorized surgical fixes; escalate design changes or unclear failures to the parent. Do not hand runners open-ended implementation or analysis design.
+
+Use Luna as an explicit fallback when the low-cost tier cannot handle the task. Prefer `openai-codex/gpt-6-luna` when available; do not depend on OpenRouter availability. Report provider or launch failures and stop the lane before an explicit retry or fallback; never silently switch models or execution modes.
+
+Construct each task as an independent evidence contract:
 
 - exact objective
 - exact paths, sources, or data scope
@@ -44,8 +64,8 @@ Construct each DeepSeek/Qwen task as an independent evidence contract:
 - stop conditions
 - concise verdict and unresolved uncertainties
 
-Use fresh context. Avoid passing narrative conversation history, reflective assistant prose, or unrelated parent context. State required tool use explicitly rather than relying on the child to initiate optional tools.
+Use fresh context. Avoid passing narrative conversation history, reflective assistant prose, or unrelated parent context. State required tool use explicitly rather than relying on the child to initiate optional tools. Delegation still requires operator authorization.
 
-Launch `researcher` and `evidence-auditor` asynchronously so their pi-web-access tools load in the detached child runtime. Use at most three independent DeepSeek/Qwen lanes by default, and do not create overlapping scouts.
+Launch children asynchronously, including `researcher` and `evidence-auditor` so their pi-web-access tools load in the detached child runtime. Use at most three independent lanes by default, and do not create overlapping scouts. Larger runner fanouts need an explicit task-specific budget and disjoint output ownership; keep one source writer per cwd/worktree.
 
-The main Sol/Astra agent owns synthesis, architectural decisions, source mutation, test execution, conflict resolution, and final acceptance. Treat child output as evidence, not authority.
+The main Sol/Astra agent owns synthesis, architectural decisions, source mutation, test design, conflict resolution, and final acceptance. Runners may execute prepared tests; the parent checks their commands, exit statuses, and artifacts. Treat child output as evidence, not authority.
