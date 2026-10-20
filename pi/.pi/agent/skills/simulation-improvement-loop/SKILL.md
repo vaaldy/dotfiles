@@ -66,6 +66,29 @@ the optional read-only oracle. Everything else — premise checks, verdicts, log
 merges, commits, and the final report — stays in the parent. One writer per worktree;
 never run two implementers in the same checkout.
 
+## Durable execution backend
+
+For an authorized multi-phase run, read `~/.pi/agent/scripts/durable-loop/README.md`
+and use its checkpointed runner. The supervisor prepares an immutable, bounded plan
+with exact `implement`, `validate`, `negativeControl` and `review` commands, absolute
+worktree paths, artifacts, dependencies and time budgets before launch. Shared
+`APPEND_SYSTEM.md` governs model routing and parent/runner ownership; the role names
+below do not authorize handing prepared-command runners open-ended design work.
+
+The runner persists `prepare -> launch -> monitor -> gate` state in SQLite, with
+sealed command evidence and receipts. Its `PASS` proves the configured checks passed,
+not domain correctness or permission to commit. The supervisor still owns the
+semantic verdict, integration checks and any explicitly authorized commits. Encode any
+acceptance needed before dependent work in a real review/prerequisite command gate;
+the scheduler does not wait for later chat verdicts. Record each repository's owner,
+allowed source paths and pinned producer-to-consumer artifact contract before launch.
+
+After interruption or Nunc compaction, recover the same run and plan, inspect the
+ledger, receipts and live workers, and retain the original deadline. Never relaunch an
+uncertain command, clear sealed evidence, or retry a failed phase in place. An allowed
+rework needs a separately budgeted correction phase/run; a failed gate stops new
+admissions. See `references/flow.md` section 5 for execution and recovery diagrams.
+
 ## Phase lifecycle
 
 For phase `Pn` (one feature, one hypothesis, one lane):
@@ -88,7 +111,7 @@ For phase `Pn` (one feature, one hypothesis, one lane):
    branch, run the repository's own checks there, and record the integration commit sha.
 
 Run phases sequentially by default. Use parallel lanes only when the phase features are
-genuinely independent — different files, no shared contract — and then at most four lanes,
+genuinely independent — different files, no shared contract — and then at most three lanes,
 one worktree each. Mechanics: `references/orchestration.md`.
 
 ## Commit rules — correctness commits, accuracy informs
