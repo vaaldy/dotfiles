@@ -5,7 +5,7 @@ alacritty/.config/alacritty/themes/noctalia.toml
 *.swp
 
 # local project prompts (independently tracked)
-prompts/
+/prompts/
 
 # editor + plugin state (lazy-lock.json is tracked on purpose)
 nvim/.config/nvim/lazy/
