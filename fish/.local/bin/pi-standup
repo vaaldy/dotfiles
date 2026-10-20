@@ -3,13 +3,13 @@ set -eu
 
 period=${1:-today}
 case "$period" in
-  today|week) ;;
+  today|yesterday|week) ;;
   -h|--help)
-    echo "usage: pi-standup [today|week]"
+    echo "usage: pi-standup [today|yesterday|week]"
     exit 0
     ;;
   *)
-    echo "usage: pi-standup [today|week]" >&2
+    echo "usage: pi-standup [today|yesterday|week]" >&2
     exit 2
     ;;
 esac
@@ -17,7 +17,7 @@ esac
 prompt=$(cat <<'EOF'
 Produce a fast, confident work summary. Read only; do not edit files or modify Jira.
 
-1. Compute the requested local-time window: "today" starts at local midnight; "week" starts Monday at local midnight.
+1. Compute the requested local-time window: "today" starts at local midnight; "yesterday" covers the previous calendar day, from its local midnight up to local midnight at the start of today; "week" starts Monday at local midnight.
 2. Read Pi chat session JSONL files under ~/.pi/agent/sessions whose messages overlap that window. Use only main-session user and final assistant messages; skip tool results, thinking, and subagent transcripts.
 3. From the repositories/directories identified by those chats, read only report-like files modified in the window (names containing report, weekly, daily, standup, summary, or handoff). Cap this at the 20 most recent files.
 4. Do not inspect Git history, diffs, or source code. Do not contact live sessions.

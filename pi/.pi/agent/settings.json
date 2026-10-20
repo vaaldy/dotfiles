@@ -1,12 +1,13 @@
 {
-  "lastChangelogVersion": "1.0.0",
+  "lastChangelogVersion": "1.4.0",
   "theme": "tokyo-night",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6.1-sol",
+  "defaultModel": "gpt-6.1-terra",
   "enabledModels": [
     "openai-codex/gpt-*",
     "openrouter/openai/gpt-*",
     "openrouter/google/*",
+    "opencode-go/claude-haiku-5-5",
     "opencode-go/deepseek-v4.1-flash",
     "opencode-go/qwen3.8-flash",
     "opencode-go/qwen3.8-max"
@@ -14,42 +15,54 @@
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
     "git:github.com/avhagedorn/pi-compact-transcript",
-    "npm:pi-smart-compact",
+    "~/.pi/agent/local-packages/pi-nunc",
     "npm:pi-studio",
     "npm:pi-subagents",
     "npm:pi-web-access",
     "npm:pi-intercom",
     "npm:pi-annotate",
-    "npm:pi-jev",
-    "npm:pi-model-system-prompt@0.2.1"
+    {
+      "source": "npm:pi-jev",
+      "extensions": []
+    }
   ],
   "npmCommand": [
     "npm",
     "--allow-remote=all"
   ],
+  "nunc": {
+    "memoryTools": true
+  },
+  "compaction": {
+    "modelOverrides": {
+      "openai-codex/gpt-6.1-sol": {
+        "reserveTokens": 650000
+      },
+      "openai-codex/gpt-6.1-terra": {
+        "reserveTokens": 650000
+      }
+    }
+  },
   "subagents": {
-    "defaultSubagentOnlyExtensions": [
-      "~/.pi/agent/npm/node_modules/pi-model-system-prompt/index.ts"
-    ],
-    "defaultModel": "opencode-go/deepseek-v4.1-flash",
+    "defaultModel": "opencode-go/claude-haiku-5-5",
     "agentOverrides": {
       "scout": {
-        "model": "opencode-go/deepseek-v4.1-flash",
+        "model": "openai-codex/gpt-6.1-terra",
         "thinking": "medium",
         "defaultContext": "fresh"
       },
       "researcher": {
-        "model": "opencode-go/deepseek-v4.1-flash",
+        "model": "openai-codex/gpt-6.1-terra",
         "thinking": "medium",
         "defaultContext": "fresh"
       },
       "reviewer": {
-        "model": "opencode-go/deepseek-v4.1-flash",
+        "model": "openai-codex/gpt-6.1-terra",
         "thinking": "medium",
         "defaultContext": "fresh"
       },
       "evidence-auditor": {
-        "model": "opencode-go/deepseek-v4.1-flash",
+        "model": "openai-codex/gpt-6.1-terra",
         "thinking": "high",
         "defaultContext": "fresh"
       }

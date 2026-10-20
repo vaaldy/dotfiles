@@ -3,6 +3,7 @@ import { AssistantMessageComponent } from "@earendil-works/pi-coding-agent";
 import { Box, Markdown } from "@earendil-works/pi-tui";
 
 const PATCH_KEY = Symbol.for("pi-report-highlight.update-content");
+const RENDER_PATCH_KEY = Symbol.for("pi-report-highlight.argon-render");
 let theme: Theme | undefined;
 
 function frameReport(component: any, message: any, isStreaming: boolean): void {
@@ -25,6 +26,25 @@ function frameReport(component: any, message: any, isStreaming: boolean): void {
 
 function patchRenderer(): void {
 	const proto = AssistantMessageComponent.prototype as any;
+	const originalRender = proto.render;
+	if (typeof originalRender === "function" && !originalRender[RENDER_PATCH_KEY]) {
+		function patchedRender(this: any, width: number) {
+			const message = this.lastMessage;
+			if (message?.provider === "openrouter" && message.model === "google/gemini-4-argon" &&
+				message.content.some((content: any) => content.type === "toolCall") &&
+				message.content.some((content: any) => content.type === "text")) {
+				try {
+					this.updateContent({ ...message, content: message.content.filter((content: any) => content.type !== "text") }, this.isStreaming);
+				} finally {
+					this.lastMessage = message;
+				}
+			}
+			return originalRender.call(this, width);
+		}
+		patchedRender[RENDER_PATCH_KEY] = true;
+		proto.render = patchedRender;
+	}
+
 	const original = proto.updateContent;
 	if (typeof original !== "function" || original[PATCH_KEY]) return;
 
