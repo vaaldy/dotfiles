@@ -1,3 +1,17 @@
+/**
+ * OpenRouter Jev decisions: typed choice/noul/score answers, with image evidence.
+ *
+ * Images follow OpenRouter's Decisions contract: `state` may be an array mixing plain text
+ * strings with image parts, `{ type: "image_url", image_url: { url: "data:image/png;base64,…" } }`.
+ * Only PNG and JPEG data URLs are accepted (Jev rejects other formats) and remote http(s) URLs
+ * are not fetched by the endpoint, so they are rejected here with guidance. Jev reads image
+ * parts at any depth of `state`; top-level placement is the portable form.
+ *
+ * Status: documented input shape + pass-through adapter. Actual vision capability, latency,
+ * per-region positional accuracy and any server-side image count/size limits are UNVERIFIED,
+ * and typed probabilities still need per-domain calibration before thresholds are trusted.
+ * The byte limits below are local guards, not documented API limits.
+ */
 import { truncateHead, type ExtensionAPI, type ExtensionContext, type Theme } from "@earendil-works/pi-coding-agent";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -6,8 +20,13 @@ import { StringEnum } from "@earendil-works/pi-ai";
 import { Text } from "@earendil-works/pi-tui";
 import { Type, type Static } from "typebox";
 
-const MODEL = "typesafe/jev-1.13";
+export const DEFAULT_MODEL = "typesafe/jev-1.13";
 const ENDPOINT = "https://openrouter.ai/api/alpha/decisions";
+/** Local guards, not documented API limits. Base64 inflates an image by about a third. */
+export const TEXT_REQUEST_LIMIT = 64_000;
+export const IMAGE_REQUEST_LIMIT = 4_000_000;
+const IMAGE_MIME = /^image\/(png|jpe?g)$/;
+const IMAGE_DATA_URL = /^data:([^;,]+);base64,([A-Za-z0-9+/=]+)$/;
 const Question = Type.Object({
   type: StringEnum(["choice", "noul", "score"] as const),
   instructions: Type.String({ minLength: 1 }),
@@ -25,7 +44,70 @@ function object(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-export async function evaluate(ctx: ExtensionContext, state: unknown, questions: Questions, signal?: AbortSignal): Promise<Decision> {
+/** Count and validate image parts anywhere in a payload, per the Decisions contract. */
+export function validateImages(payload: unknown): { images: number; imageBytes: number } {
+  let images = 0;
+  let imageBytes = 0;
+  const visit = (value: unknown, path: string): void => {
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, `${path}[${index}]`));
+      return;
+    }
+    if (!object(value)) return;
+    if (value.type === "image_url") {
+      const imageUrl = value.image_url;
+      if (!object(imageUrl) || typeof imageUrl.url !== "string") {
+        throw new Error(`${path}: image parts need { type: "image_url", image_url: { url: "data:image/png;base64,…" } }.`);
+      }
+      const match = IMAGE_DATA_URL.exec(imageUrl.url);
+      if (!match) {
+        throw new Error(`${path}: image_url must be a base64 data URL; OpenRouter does not fetch remote http(s) URLs.`);
+      }
+      if (!IMAGE_MIME.test(match[1].toLowerCase())) {
+        throw new Error(`${path}: ${match[1]} is not accepted here; Jev accepts image/png and image/jpeg only.`);
+      }
+      images += 1;
+      imageBytes += Math.floor((match[2].length * 3) / 4);
+      return;
+    }
+    if (value.type === "text") {
+      throw new Error(`${path}: text items must be plain strings, not { type: "text" } parts.`);
+    }
+    for (const [key, item] of Object.entries(value)) visit(item, `${path}.${key}`);
+  };
+  visit(payload, "state");
+  return { images, imageBytes };
+}
+
+/** Build the Decisions request body, validating images and the local byte guard. */
+export function buildRequest(
+  model: string,
+  state: unknown,
+  questions: Questions
+): { body: string; images: number } {
+  const { images, imageBytes } = validateImages(state);
+  for (const [id, question] of Object.entries(questions)) {
+    // Instructions and criteria are strings in this tool, so an image there would need a part
+    // shape the question schema does not express; keep one copy in state for every question.
+    if (validateImages(question.instructions).images) {
+      throw new Error(`questions.${id}.instructions: put images in state so every question shares one copy.`);
+    }
+    if (question.criteria && validateImages(question.criteria).images) {
+      throw new Error(`questions.${id}.criteria: put images in state so every question shares one copy.`);
+    }
+  }
+  const body = JSON.stringify({ model, state, questions });
+  const limit = images ? IMAGE_REQUEST_LIMIT : TEXT_REQUEST_LIMIT;
+  if (Buffer.byteLength(body) > limit) {
+    throw new Error(
+      `Jev request exceeds ${limit} bytes${images ? ` with ${images} image(s), ~${Math.round(imageBytes / 1024)} KB decoded` : ""}; ` +
+        "narrow the state, shrink the image, or split the questions."
+    );
+  }
+  return { body, images };
+}
+
+export async function evaluate(ctx: ExtensionContext, state: unknown, questions: Questions, signal?: AbortSignal, model = DEFAULT_MODEL): Promise<Decision> {
   const entries = Object.entries(questions);
   if (!entries.length || entries.length > 32) throw new Error("Provide 1–32 questions.");
   for (const [, q] of entries) {
@@ -36,8 +118,7 @@ export async function evaluate(ctx: ExtensionContext, state: unknown, questions:
       throw new Error("Score requires an ordered array of at least two criteria.");
     }
   }
-  const body = JSON.stringify({ model: MODEL, state, questions });
-  if (Buffer.byteLength(body) > 64_000) throw new Error("Jev request exceeds 64 KB; narrow the state or questions.");
+  const { body } = buildRequest(model, state, questions);
   signal?.throwIfAborted();
   const key = (await ctx.modelRegistry.getProviderAuth("openrouter"))?.auth.apiKey;
   if (!key) throw new Error("OpenRouter credentials unavailable. Configure OpenRouter in Pi with /login openrouter.");
@@ -86,11 +167,11 @@ export default function (pi: ExtensionAPI) {
     ctx.ui.setStatus("openrouter-jev", theme.fg("dim", "| ") + theme.fg("accent", "Jev: ") + theme.fg("muted", "OpenRouter ") +
       theme.fg(pending ? "warning" : lastState === "error" ? "error" : "dim", pending ? "working…" : `${lastState} · ${requests} calls`));
   };
-  const ask = async (ctx: ExtensionContext, state: unknown, questions: Questions, signal?: AbortSignal) => {
+  const ask = async (ctx: ExtensionContext, state: unknown, questions: Questions, signal?: AbortSignal, model?: string) => {
     pending++;
     status(ctx);
     try {
-      const data = await evaluate(ctx, state, questions, signal);
+      const data = await evaluate(ctx, state, questions, signal, model);
       requests++;
       lastState = "ready";
       return data;
@@ -115,10 +196,17 @@ export default function (pi: ExtensionAPI) {
 
   pi.registerTool({
     name: "or_jev_evaluate", label: "Jev: Evaluate (OpenRouter)",
-    description: "Evaluate typed choice, noul (yes probability), or score questions using Jev through OpenRouter. On-demand only; 1–32 questions, 64 KB maximum request.",
-    promptGuidelines: ["Use or_jev_evaluate for typed judgments through OpenRouter; use the separate jev_evaluate only when TypeSafe-direct is explicitly requested."],
-    parameters: Type.Object({ state: Type.Unknown(), questions: Type.Record(Type.String(), Question, { minProperties: 1, maxProperties: 32 }) }),
-    async execute(_id, params, signal, _update, ctx) { return result(await ask(ctx, params.state, params.questions, signal)); },
+    description: "Evaluate typed choice, noul (yes probability), or score questions using Jev through OpenRouter. On-demand only; 1–32 questions. Images: pass state as an array mixing plain text strings with { type: \"image_url\", image_url: { url: \"data:image/png;base64,…\" } } parts (PNG/JPEG data URLs only; remote URLs are not fetched). Vision capability and latency are unverified; probabilities need per-domain calibration.",
+    promptGuidelines: [
+      "Use or_jev_evaluate for typed judgments through OpenRouter; use the separate jev_evaluate only when TypeSafe-direct is explicitly requested.",
+      "For image decisions, put the image once in state as a base64 data URL part and ask one question per region or candidate box, instead of sending one image per question.",
+    ],
+    parameters: Type.Object({
+      state: Type.Unknown(),
+      questions: Type.Record(Type.String(), Question, { minProperties: 1, maxProperties: 32 }),
+      model: Type.Optional(Type.String({ description: `Decisions model (default ${DEFAULT_MODEL}; e.g. typesafe/jev-1.14, ~typesafe/jev-latest, typesafe/jev-router).` })),
+    }),
+    async execute(_id, params, signal, _update, ctx) { return result(await ask(ctx, params.state, params.questions, signal, params.model)); },
     renderCall,
   });
 
@@ -168,7 +256,7 @@ export default function (pi: ExtensionAPI) {
         } catch (error) { ctx.ui.notify(error instanceof Error ? error.message : "Jev request failed", "error"); }
       } else if (!args.trim() || args.trim() === "status") {
         const key = await ctx.modelRegistry.getApiKeyForProvider("openrouter");
-        ctx.ui.notify(`Jev: OpenRouter · ${MODEL} · ${key ? "Pi credentials available" : "credentials missing"} · ${requests} successful calls. On-demand only.`, "info");
+        ctx.ui.notify(`Jev: OpenRouter · ${DEFAULT_MODEL} · ${key ? "Pi credentials available" : "credentials missing"} · ${requests} successful calls. On-demand only.`, "info");
       } else ctx.ui.notify("Usage: /or-jev status | test", "warning");
     },
   });

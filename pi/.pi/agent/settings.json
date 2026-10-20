@@ -10,7 +10,7 @@
     "opencode-go/deepseek-v4.1-flash",
     "opencode-go/qwen3.8-flash",
     "opencode-go/qwen3.8-max",
-    "dgx/local-inference-lab/Qwen3.8-Flash-Next-NVFP4"
+    "dgx/nvidia/Qwen3.8-Flash-Next-FP4-Local"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",

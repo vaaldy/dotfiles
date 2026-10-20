@@ -22,12 +22,11 @@ yabai -m config left_padding                24
 yabai -m config right_padding               24
 yabai -m config window_gap                  24
 
-# Reserve space for SketchyBar so tiled windows stop stacking underneath it.
-# `all:` applies to every display regardless of count/arrangement — no need
-# to special-case a specific monitor. SketchyBar occupies 44px at the top;
-# top_padding above still adds its own 8px gap between the bar and the first
-# tiled window, same as every other edge. Set to 0:0 if you ever drop it.
-yabai -m config external_bar                 all:44:0
+# No third-party bar: 30px reserved for the native macOS menu bar (measured via
+# System Events: menu bar = 3440x30 on the 3440x1440 external display).
+# top_padding then adds its own 24px gap, so the top edge matches every other
+# edge. Adjust the first number if a notched display reports a taller bar.
+yabai -m config external_bar                 all:30:0
 
 # ── focus & mouse ────────────────────────────────────────────────────────────
 yabai -m config focus_follows_mouse          off
@@ -36,11 +35,6 @@ yabai -m config mouse_modifier               fn
 yabai -m config mouse_action1                move
 yabai -m config mouse_action2                resize
 yabai -m config mouse_drop_action            swap
-
-# Drive app highlighting from focus events instead of polling every second.
-yabai -m signal --remove sketchybar_window_focus 2>/dev/null
-yabai -m signal --add label=sketchybar_window_focus event=window_focused \
-  action="sketchybar --trigger window_focus"
 
 # ── appearance ───────────────────────────────────────────────────────────────
 # [SA] these three silently do nothing without the scripting addition:

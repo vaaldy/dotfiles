@@ -8,6 +8,9 @@
         "gpt-5.6-sol": {
           "contextWindow": 1050000
         },
+        "gpt-6.1-sol": {
+          "contextWindow": 1050000
+        },
         "gpt-5.6-terra": {
           "contextWindow": 1050000
         },
@@ -22,7 +25,7 @@
       "apiKey": "dgx",
       "models": [
         {
-          "id": "local-inference-lab/Qwen3.8-Flash-Next-NVFP4",
+          "id": "nvidia/Qwen3.8-Flash-Next-FP4-Local",
           "name": "Qwen 3.8 Flash Next (DGX Spark TP2)",
           "reasoning": true,
           "input": ["text", "image"],

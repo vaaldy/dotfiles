@@ -31,7 +31,6 @@ link "$here/macos/.config/spicetify" "$HOME/.config/spicetify"
 link "$here/macos/.config/yabai/yabairc" "$HOME/.config/yabai/yabairc"
 link "$here/macos/.config/skhd/skhdrc" "$HOME/.config/skhd/skhdrc"
 link "$here/macos/.config/borders/bordersrc" "$HOME/.config/borders/bordersrc"
-link "$here/macos/.config/sketchybar" "$HOME/.config/sketchybar"
 link "$here/macos/.config/paneru/paneru.toml" "$HOME/.config/paneru/paneru.toml"
 
 for script in "$here"/macos/.local/bin/*; do
@@ -49,6 +48,9 @@ link "$pi/settings.json" "$HOME/.pi/agent/settings.json"
 link "$pi/APPEND_SYSTEM.md" "$HOME/.pi/agent/APPEND_SYSTEM.md"
 link "$pi/models.json" "$HOME/.pi/agent/models.json"
 link "$pi/compact-transcript.json" "$HOME/.pi/agent/compact-transcript.json"
+link "$pi/model-system-prompt/qwen.md" "$HOME/.pi/agent/model-system-prompt/qwen.md"
+link "$pi/prompts/simulation-improvement-loop.md" "$HOME/.pi/agent/prompts/simulation-improvement-loop.md"
+link "$pi/skills/simulation-improvement-loop" "$HOME/.pi/agent/skills/simulation-improvement-loop"
 for extension in "$pi"/extensions/*.ts; do
   link "$extension" "$HOME/.pi/agent/extensions/$(basename "$extension")"
 done
