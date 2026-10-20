@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.85.1",
+  "lastChangelogVersion": "1.0.0",
   "theme": "tokyo-night",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-sol",
@@ -7,7 +7,9 @@
     "openai-codex/gpt-*",
     "openrouter/openai/gpt-*",
     "openrouter/google/*",
-    "opencode-go/deepseek-v4.1-flash"
+    "opencode-go/deepseek-v4.1-flash",
+    "opencode-go/qwen3.8-flash",
+    "opencode-go/qwen3.8-max"
   ],
   "packages": [
     "npm:pi-mcp-adapter@2.33.0",
@@ -18,10 +20,17 @@
     "npm:pi-web-access",
     "npm:pi-intercom",
     "npm:pi-annotate",
-    "npm:pi-jev"
+    "npm:pi-jev",
+    "npm:pi-model-system-prompt@0.2.1"
   ],
-  "npmCommand": ["npm", "--allow-remote=all"],
+  "npmCommand": [
+    "npm",
+    "--allow-remote=all"
+  ],
   "subagents": {
+    "defaultSubagentOnlyExtensions": [
+      "~/.pi/agent/npm/node_modules/pi-model-system-prompt/index.ts"
+    ],
     "defaultModel": "opencode-go/deepseek-v4.1-flash",
     "agentOverrides": {
       "scout": {

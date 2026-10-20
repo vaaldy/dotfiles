@@ -36,6 +36,14 @@ opt.splitkeep = "screen"
 opt.laststatus = 3            -- one global statusline, plays nicer inside tmux
 opt.fillchars = { eob = " " }
 
+-- Treesitter syntax-aware folding (JSON objects/arrays, functions, classes, etc.)
+-- Starts unfolded (level 99); use za / zc / zo / zM / zR to collapse & expand.
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+opt.foldlevel = 99
+opt.foldlevelstart = 99
+opt.foldenable = true
+
 -- Agent-friendly: files edited by a CLI agent in another pane show up here.
 -- Needs `set -g focus-events on` in tmux.conf (it's there).
 opt.autoread = true
