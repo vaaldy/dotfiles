@@ -46,7 +46,9 @@ done
 pi="$here/pi/.pi/agent"
 link "$pi/settings.json" "$HOME/.pi/agent/settings.json"
 link "$pi/APPEND_SYSTEM.md" "$HOME/.pi/agent/APPEND_SYSTEM.md"
-link "$pi/models.json" "$HOME/.pi/agent/models.json"
+if [[ ! -f "$HOME/.pi/agent/models.json" || -L "$HOME/.pi/agent/models.json" ]]; then
+  link "$pi/models.json" "$HOME/.pi/agent/models.json"
+fi
 link "$pi/compact-transcript.json" "$HOME/.pi/agent/compact-transcript.json"
 link "$pi/model-system-prompt/qwen.md" "$HOME/.pi/agent/model-system-prompt/qwen.md"
 link "$pi/prompts/simulation-improvement-loop.md" "$HOME/.pi/agent/prompts/simulation-improvement-loop.md"
