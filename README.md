@@ -67,7 +67,7 @@ npm ci --ignore-scripts --no-audit --no-fund
 npm test
 ```
 
-On macOS, `install-macos.sh` links these scripts, installs the durable dependencies, and builds the pinned Nunc checkout. It merges only the shared Nunc switches and per-model compaction settings into a regular private Pi settings file; other settings and private model configuration remain local. An existing Nunc checkout must be clean and at the documented revision; otherwise the installer stops without resetting it.
+On macOS, `install-macos.sh` links these scripts, installs the durable dependencies, and builds the pinned Nunc checkout. For a regular private Pi settings file, it replaces Smart Compact with Nunc, enables the shared Nunc switches, and calculates a 250,000-token trigger for the two Codex models only when their explicit local window and retention settings permit it. Unknown or incompatible windows keep their existing thresholds with a notice. Other settings and private model configuration remain local; changed private settings receive a backup. An existing Nunc checkout must be clean and at the documented revision; otherwise the installer stops without resetting it.
 
 ### Linux (`pc` / `laptop`)
 
