@@ -41,10 +41,15 @@ elif [[ "$*" == *"status --porcelain" ]]; then printf '%s' "\${TEST_NUNC_DIRTY:-
       };
       const original = JSON.stringify(privateSettings) + '\n';
       const privateModels = JSON.stringify({ private: 'keep-local', ...(scenario === 'private' ? {
-        providers: { 'openai-codex': { modelOverrides: {
-          'gpt-6.1-sol': { contextWindow: 1050000 },
-          'gpt-6.1-terra': { contextWindow: 500000 },
-        } } },
+        providers: {
+          'openai-codex': { modelOverrides: {
+            'gpt-6.1-sol': { contextWindow: 1050000 },
+            'gpt-6.1-terra': { contextWindow: 500000 },
+          } },
+          google: { modelOverrides: { 'gemini-4-argon': { contextWindow: 1048576 } } },
+          openrouter: { modelOverrides: { 'google/gemini-4-argon': { contextWindow: 1048576 } } },
+          'opencode-go': { modelOverrides: { 'gemini-4-argon': { contextWindow: 1048576 } } },
+        },
       } : {}) }) + '\n';
       mkdirSync(join(home, '.pi/agent'), { recursive: true });
       if (scenario.startsWith('private')) {
@@ -67,7 +72,12 @@ elif [[ "$*" == *"status --porcelain" ]]; then printf '%s' "\${TEST_NUNC_DIRTY:-
             compaction: { enabled: false, modelOverrides: {
               'local/model': { reserveTokens: 30000 },
               'openai-codex/gpt-6.1-sol': { reserveTokens: scenario === 'private' ? 650000 : 16384, keepRecentTokens: 12345 },
-              ...(scenario === 'private' ? { 'openai-codex/gpt-6.1-terra': { reserveTokens: 100000 } } : {}),
+              ...(scenario === 'private' ? {
+                'openai-codex/gpt-6.1-terra': { reserveTokens: 100000 },
+                'google/gemini-4-argon': { reserveTokens: 648576 },
+                'openrouter/google/gemini-4-argon': { reserveTokens: 648576 },
+                'opencode-go/gemini-4-argon': { reserveTokens: 648576 },
+              } : {}),
             } },
             packages: ['npm:local-only', '~/.pi/agent/local-packages/pi-nunc'],
           });
