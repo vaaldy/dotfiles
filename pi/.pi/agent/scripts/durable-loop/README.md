@@ -49,6 +49,38 @@ Only ready phases are admitted. Ready phases run concurrently when their canonic
 
 Use a separate worktree for each writer. Canonical-path overlap checks cover only this run, not other agents, other run directories, shared databases, ports, Docker volumes or services. Before launching, the parent reserves those resources and coordinates with their owning agents. Across a stack, request changes from each repository owner using an exact interface contract, reproducer, expected artifact, and dependency/version gate. Wait for the owner's verified revision or published artifact, pin its identity, then run consumer and end-to-end tests. A library test alone does not prove application integration. Keep integration as a final phase depending on every required lane.
 
+## Repository ownership and cross-repo handoffs
+
+Before launch, the supervisor records an ownership map in the approved goal and phase
+briefs. Each entry names the absolute repository/worktree, its owning agent, allowed
+source paths, exclusions, phase ID, prerequisite versions and required artifacts. Use
+`phase.cwd` for the owning worktree and `dependsOn` for actual execution dependencies;
+the runner does not infer repository ownership from a task name or chat history.
+
+| Scope | Owner and write boundary | Evidence required by the next owner |
+| --- | --- | --- |
+| Producer/library repository | Its owning parent prepares changes; one writer in its worktree. Other repository agents are read-only there. | Exact interface contract, reproducer, source revision or artifact hash, and producer test results. |
+| Consumer/application repository | Its owning parent changes only the consumer after the producer gate passes. | Pin and verify the actual loaded producer identity, then run consumer tests; a producer test pass alone is insufficient. |
+| Integration worktree | One named owner; the supervisor owns final acceptance and explicitly authorized integration/commits. | Full-stack checks against pinned code, inputs and dependencies, plus remaining acceptance conditions. |
+
+Ask the owning agent for upstream changes rather than patching another repository
+from a consumer lane. Reserve shared ports, databases, containers and mutable artifacts
+separately: this run's canonical worktree checks do not coordinate other runs or
+sessions. Children receive compact evidence contracts, not assumed access to the
+parent's Nunc memory. Follow shared `APPEND_SYSTEM.md` for model routing and parent
+versus prepared-command runner responsibilities.
+
+A durable `PASS` is a command/evidence verdict, not an automatic domain-correctness or
+commit decision. The review command must wait for the actual independent verdict and
+fail on unresolved required findings. The scheduler admits ready dependencies after
+`PASS`; it does not wait for a later supervisor chat response. Any parent acceptance
+needed before downstream execution must be enforced inside an approved review or
+prerequisite phase command. `dependsOn` does not establish that the consumer actually
+uses the verified upstream build; the consumer's validation must check that identity.
+
+The simulation-loop diagrams show this split and the recovery path in
+[`flow.md`](../../skills/simulation-improvement-loop/references/flow.md#5-durable-execution--repo-ownership-checkpoints-and-recovery).
+
 ## Recovery and evidence
 
 The durable task progresses through `prepare -> launch -> monitor -> gate`. The launch intent is persisted before spawning. The worker takes an exclusive claim before running commands; a launch marker is never automatically cleared. SQLite is the authoritative completion ledger. A receipt must be written and hash-verified before the completion transaction. Missing exits, nonzero exits, signals, missing artifacts, invalid input identity and failed receipt writes cannot produce success.
@@ -73,4 +105,14 @@ node runner.mjs run /absolute/path/to/run /absolute/path/to/plan.json
 
 If interruption occurred between launch intent and worker creation, or a worker died without an exit, the runner fails closed instead of replaying a command whose effects are uncertain. This is not an exactly-once external execution guarantee. Reconcile the effects, preserve the failed run, and authorize a new run only when safe. Do not edit receipts or clear phase markers to force advancement. Completed phase evidence is checked again on resume; later edits to declared artifacts invalidate it. Keep artifacts phase-specific and immutable; write corrections as supplements in a new phase/run.
 
-SQLite's WAL checkpoints survive ordinary process crashes. This runner does not promise survival of host power loss, filesystem corruption, arbitrary child-process crashes, or uninterrupted multi-hour operation. Recovery tests exercise short synthetic commands; long real workloads still need task-specific smoke tests and monitoring. Quality comes from meaningful checks, independent review, and evidence-based parent decisions, not from elapsed runtime or the durable library alone.
+## Accelerated smoke tests
+
+```sh
+node --test --test-name-pattern='virtual 30-minute' runner.test.mjs
+```
+
+These tests preload `test-clock.mjs` only into their supervisor and detached Node workers. A shared clock file advances their `Date.now()` and timer deadlines by 30 minutes without changing the system clock. Commands still execute normally in temporary directories with real SQLite, processes, signals and artifacts. This is test isolation, not a security sandbox; use only the supplied trusted synthetic commands. Never preload the test clock into a real run.
+
+The recovery test advances time while a command waits, proves that no artifact, exit or receipt appeared, kills the supervisor, resumes the same run and allows the command to finish. It checks all four real stage exits, an unchanged persisted deadline and one execution only. The timeout test advances beyond the original 30-minute deadline and checks the real `SIGKILL`, failed receipt, absent output and refusal to pass on rerun.
+
+SQLite's WAL checkpoints survive ordinary process crashes. This runner does not promise survival of host power loss, filesystem corruption, arbitrary child-process crashes, or uninterrupted multi-hour operation. Accelerated tests cover time-dependent state transitions; they do not simulate hours of memory growth, resource exhaustion, network failures or agent reasoning. Long real workloads still need task-specific smoke tests and monitoring. Quality comes from meaningful checks, independent review, and evidence-based parent decisions, not from elapsed runtime or the durable library alone.

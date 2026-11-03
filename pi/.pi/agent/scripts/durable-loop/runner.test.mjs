@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync, mkdirSync, unlinkSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync, mkdirSync, unlinkSync, renameSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
@@ -20,6 +20,100 @@ function fixture(t, overrides = {}) {
   return { cwd, run, planFile, phase, plan, invoke, execute: () => invoke('run', run, planFile) };
 }
 function passed(result) { assert.equal(result.status, 0, result.stderr + result.stdout); }
+
+function clocked(f) {
+  const clock = path.join(f.cwd, 'clock.json');
+  const advance = offsetMs => {
+    writeFileSync(clock + '.tmp', JSON.stringify({ offsetMs }));
+    renameSync(clock + '.tmp', clock);
+  };
+  advance(0);
+  const env = {
+    ...process.env, DURABLE_TEST_CLOCK: clock,
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --import=${new URL('./test-clock.mjs', import.meta.url).href}`.trim(),
+  };
+  const children = [];
+  const start = () => {
+    const child = spawn(process.execPath, [runner, 'run', f.run, f.planFile], { env, stdio: ['ignore', 'pipe', 'pipe'] });
+    let stdout = '', stderr = '';
+    child.stdout.on('data', data => { stdout += data; });
+    child.stderr.on('data', data => { stderr += data; });
+    const done = new Promise((resolve, reject) => {
+      child.once('error', reject);
+      child.once('close', (status, signal) => resolve({ status, signal, stdout, stderr }));
+    });
+    children.push({ child, done });
+    return { child, done };
+  };
+  const until = async predicate => {
+    const deadline = Date.now() + 8000;
+    while (!predicate()) {
+      assert.ok(Date.now() < deadline, 'clocked worker failed to reach expected state');
+      await pause(10);
+    }
+  };
+  const invoke = (...args) => spawnSync(process.execPath, [runner, ...args], { env, encoding: 'utf8', timeout: 10000 });
+  const cleanup = async () => {
+    advance(24 * 60 * 60 * 1000);
+    writeFileSync(path.join(f.cwd, 'release'), 'cleanup');
+    await pause(200);
+    for (const { child, done } of children) {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+      await done;
+    }
+  };
+  return { start, advance, until, invoke, cleanup };
+}
+
+for (const expire of [false, true]) {
+  test(`virtual 30-minute ${expire ? 'timeout' : 'recovery'} uses real command evidence`, { timeout: 15000 }, async t => {
+    const started = performance.now();
+    const f = fixture(t, {
+      timeoutSeconds: expire ? 1800 : 3600,
+      implement: 'echo execution >> count; while [ ! -e release ]; do sleep 0.02; done; echo data > artifact',
+    });
+    f.plan.maxWallSeconds = 7200;
+    writeFileSync(f.planFile, JSON.stringify(f.plan));
+    const clock = clocked(f);
+    try {
+      const first = clock.start();
+      await clock.until(() => existsSync(path.join(f.cwd, 'count')));
+      const inputFile = path.join(f.run, 'one', 'input.json');
+      const originalInput = readFileSync(inputFile, 'utf8');
+      clock.advance(30 * 60 * 1000 + (expire ? 500 : 0));
+      if (expire) {
+        const result = await first.done;
+        assert.notEqual(result.status, 0, result.stdout);
+        const exit = JSON.parse(readFileSync(path.join(f.run, 'one', 'exit.json')));
+        assert.equal(exit.timedOut, true);
+        assert.equal(exit.results[0].signal, 'SIGKILL');
+        assert.equal(existsSync(path.join(f.cwd, 'artifact')), false);
+        assert.equal(JSON.parse(readFileSync(path.join(f.run, 'one', 'receipt.json'))).verdict, 'FAIL');
+        assert.notEqual(clock.invoke('run', f.run, f.planFile).status, 0);
+      } else {
+        await pause(100);
+        assert.equal(existsSync(path.join(f.cwd, 'artifact')), false);
+        assert.equal(existsSync(path.join(f.run, 'one', 'exit.json')), false);
+        assert.equal(existsSync(path.join(f.run, 'one', 'receipt.json')), false);
+        first.child.kill('SIGKILL');
+        await first.done;
+        passed(clock.invoke('unlock', f.run));
+        const resumed = clock.start();
+        writeFileSync(path.join(f.cwd, 'release'), 'allow actual work');
+        passed(await resumed.done);
+        const exit = JSON.parse(readFileSync(path.join(f.run, 'one', 'exit.json')));
+        assert.ok(exit.results[0].durationMs >= 30 * 60 * 1000);
+        assert.equal(exit.results.length, 4);
+        assert.ok(exit.results.every(result => result.code === 0));
+        assert.equal(JSON.parse(readFileSync(path.join(f.run, 'one', 'receipt.json'))).verdict, 'PASS');
+        passed(clock.invoke('run', f.run, f.planFile));
+      }
+      assert.equal(readFileSync(inputFile, 'utf8'), originalInput, 'restart must not reset deadline or identity');
+      assert.equal(readFileSync(path.join(f.cwd, 'count'), 'utf8'), 'execution\n');
+      t.diagnostic(`30 virtual minutes exercised in ${((performance.now() - started) / 1000).toFixed(2)} real seconds`);
+    } finally { await clock.cleanup(); }
+  });
+}
 
 test('gates pass, repeat run does not duplicate, artifacts are sealed', t => {
   const f = fixture(t);
@@ -82,7 +176,7 @@ test('dependency graph runs ready work without waiting for unrelated lanes', t =
   f.plan.phases = [
     { ...base, id: 'p1', cwd: a, dependsOn: [], implement: 'echo data > artifact' },
     { ...base, id: 'slow', cwd: b, dependsOn: [], implement: 'sleep 1.5; echo data > artifact' },
-    { ...base, id: 'p2', cwd: c, dependsOn: ['p1'], implement: 'test -s ../a/artifact; test ! -e ../b/artifact; echo data > artifact' },
+    { ...base, id: 'p2', cwd: c, dependsOn: ['p1'], implement: 'test -s ../a/artifact && test ! -e ../b/artifact && echo data > artifact' },
   ];
   writeFileSync(f.planFile, JSON.stringify(f.plan));
   passed(f.execute());
@@ -94,7 +188,7 @@ test('default dependency chain waits for prior phase', t => {
   const f = fixture(t);
   f.plan.maxPhases = 2;
   f.plan.concurrency = 2;
-  f.plan.phases.push({ ...f.phase, id: 'two', implement: 'test -s artifact; echo second > second', review: 'test -s second', artifacts: ['second'] });
+  f.plan.phases.push({ ...f.phase, id: 'two', implement: 'test -s artifact && echo second > second', review: 'test -s second', artifacts: ['second'] });
   writeFileSync(f.planFile, JSON.stringify(f.plan));
   passed(f.execute());
   assert.equal(JSON.parse(readFileSync(path.join(f.run, 'two', 'receipt.json'))).verdict, 'PASS');
@@ -133,9 +227,9 @@ test('independent phases sharing a working directory are serialized', t => {
   f.plan.maxPhases = 2;
   f.plan.concurrency = 2;
   f.plan.phases[0].dependsOn = [];
-  f.plan.phases[0].implement = 'mkdir busy; sleep 0.2; echo data > artifact; rmdir busy';
+  f.plan.phases[0].implement = 'mkdir busy && sleep 0.2 && echo data > artifact && rmdir busy';
   f.plan.phases[0].review = 'test -s artifact';
-  f.plan.phases.push({ ...f.phase, id: 'two', dependsOn: [], implement: 'mkdir busy; echo second > second; rmdir busy', review: 'test -s second', artifacts: ['second'] });
+  f.plan.phases.push({ ...f.phase, id: 'two', dependsOn: [], implement: 'mkdir busy && echo second > second && rmdir busy', review: 'test -s second', artifacts: ['second'] });
   writeFileSync(f.planFile, JSON.stringify(f.plan));
   passed(f.execute());
 });

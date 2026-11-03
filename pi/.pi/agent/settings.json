@@ -26,6 +26,19 @@
       "extensions": []
     }
   ],
+  "nunc": {
+    "memoryTools": true
+  },
+  "compaction": {
+    "modelOverrides": {
+      "openai-codex/gpt-6.1-sol": {
+        "reserveTokens": 650000
+      },
+      "openai-codex/gpt-6.1-terra": {
+        "reserveTokens": 650000
+      }
+    }
+  },
   "subagents": {
     "defaultModel": "opencode-go/claude-haiku-5-5",
     "agentOverrides": {

@@ -70,6 +70,14 @@ Launch children asynchronously, including `researcher` and `evidence-auditor` so
 
 The main Sol/Terra/Astra agent owns synthesis, architectural decisions, source mutation, test design, conflict resolution, and final acceptance. Runners may execute prepared tests; the parent checks their commands, exit statuses, and artifacts. Treat child output as evidence, not authority.
 
+## Long-running session memory
+
+- Keep a continuing project in its persistent Pi session and selected branch. Use Nunc's memory/history tools when an answer depends on earlier conversation that is no longer visible; search before guessing. Do not import another session's state as current authority.
+- Save memory at meaningful decisions, handoffs and recovery points, not every turn. Preserve the continuing goal, decisive acceptance conditions, unresolved work, verified results and confirmed recovery locations. Side questions and partial successes do not cancel unfinished obligations.
+- For durable work, retain the absolute run, immutable plan and worktree paths, relevant artifact identities, last observed phase state and remaining acceptance conditions. Treat remembered status as a dated observation, not execution truth: inspect the current ledger, receipts and live workers before continuing.
+- Nunc preserves working context; the durable runner preserves execution evidence. Compaction or resuming the chat does not relaunch commands, reset deadlines, extend authority or prove completion. Reconcile and resume the same authorized run under its recovery rules; never recreate an uncertain run from memory.
+- Keep bulk logs and lasting project knowledge in normal artifacts and documentation. Child agents do not automatically share the parent's Nunc memory; pass compact evidence contracts and synthesize their verified results back into the parent.
+
 ## Durable phase workflows
 
 For authorized multi-hour or multi-phase execution, read `~/.pi/agent/scripts/durable-loop/README.md` and use its checkpointed runner for prepared commands. Keep working through the approved scope until the goal is verified or a concrete authority/resource blocker remains; a progress update is not a handoff or a reason to stop.
