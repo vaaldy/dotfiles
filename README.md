@@ -55,7 +55,7 @@ npm ci --ignore-scripts --no-audit --no-fund
 npm run build
 ```
 
-Use `/reload`, then `/nunc details` in Pi to check that it loaded. Shared settings enable Nunc's memory/history tools. Sol 6.1 and Terra 6.1 on `openai-codex` compact at about 250,000 tokens with the shared 1,050,000-token model windows (`reserveTokens = 800000`). This is a starting experiment, not a proven optimum; other models keep their existing thresholds. Keep Nunc's default memory and retention budgets until actual checkpoints show a reason to tune them.
+Use `/reload`, then `/nunc details` in Pi to check that it loaded. Shared settings enable Nunc's memory/history tools. Sol 6.1 and Terra 6.1 on `openai-codex` compact at about 400,000 tokens with the shared 1,050,000-token model windows (`reserveTokens = 650000`). This is a starting experiment, not a proven optimum; other models keep their existing thresholds. Keep Nunc's default memory and retention budgets until actual checkpoints show a reason to tune them.
 
 Resume the same persistent project session for continuing work. Search eligible session history when old context is needed; do not require memory updates every turn. Nunc remembers goals, constraints and recovery locations, while durable ledgers and receipts remain authoritative for execution. The separate compact-transcript package changes display, not context compaction.
 
@@ -67,7 +67,7 @@ npm ci --ignore-scripts --no-audit --no-fund
 npm test
 ```
 
-On macOS, `install-macos.sh` links these scripts, installs the durable dependencies, and builds the pinned Nunc checkout. For a regular private Pi settings file, it replaces Smart Compact with Nunc, enables the shared Nunc switches, and calculates a 250,000-token trigger for the two Codex models only when their explicit local window and retention settings permit it. Unknown or incompatible windows keep their existing thresholds with a notice. Other settings and private model configuration remain local; changed private settings receive a backup. An existing Nunc checkout must be clean and at the documented revision; otherwise the installer stops without resetting it.
+On macOS, `install-macos.sh` links these scripts, installs the durable dependencies, and builds the pinned Nunc checkout. For a regular private Pi settings file, it replaces Smart Compact with Nunc, enables the shared Nunc switches, and calculates a 400,000-token trigger for the two Codex models only when their explicit local window and retention settings permit it. Unknown or incompatible windows keep their existing thresholds with a notice. Other settings and private model configuration remain local; changed private settings receive a backup. An existing Nunc checkout must be clean and at the documented revision; otherwise the installer stops without resetting it.
 
 ### Linux (`pc` / `laptop`)
 

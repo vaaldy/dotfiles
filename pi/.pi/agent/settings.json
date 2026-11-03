@@ -32,10 +32,10 @@
   "compaction": {
     "modelOverrides": {
       "openai-codex/gpt-6.1-sol": {
-        "reserveTokens": 800000
+        "reserveTokens": 650000
       },
       "openai-codex/gpt-6.1-terra": {
-        "reserveTokens": 800000
+        "reserveTokens": 650000
       }
     }
   },
