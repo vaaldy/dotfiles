@@ -73,4 +73,14 @@ node runner.mjs run /absolute/path/to/run /absolute/path/to/plan.json
 
 If interruption occurred between launch intent and worker creation, or a worker died without an exit, the runner fails closed instead of replaying a command whose effects are uncertain. This is not an exactly-once external execution guarantee. Reconcile the effects, preserve the failed run, and authorize a new run only when safe. Do not edit receipts or clear phase markers to force advancement. Completed phase evidence is checked again on resume; later edits to declared artifacts invalidate it. Keep artifacts phase-specific and immutable; write corrections as supplements in a new phase/run.
 
-SQLite's WAL checkpoints survive ordinary process crashes. This runner does not promise survival of host power loss, filesystem corruption, arbitrary child-process crashes, or uninterrupted multi-hour operation. Recovery tests exercise short synthetic commands; long real workloads still need task-specific smoke tests and monitoring. Quality comes from meaningful checks, independent review, and evidence-based parent decisions, not from elapsed runtime or the durable library alone.
+## Accelerated smoke tests
+
+```sh
+node --test --test-name-pattern='virtual 30-minute' runner.test.mjs
+```
+
+These tests preload `test-clock.mjs` only into their supervisor and detached Node workers. A shared clock file advances their `Date.now()` and timer deadlines by 30 minutes without changing the system clock. Commands still execute normally in temporary directories with real SQLite, processes, signals and artifacts. This is test isolation, not a security sandbox; use only the supplied trusted synthetic commands. Never preload the test clock into a real run.
+
+The recovery test advances time while a command waits, proves that no artifact, exit or receipt appeared, kills the supervisor, resumes the same run and allows the command to finish. It checks all four real stage exits, an unchanged persisted deadline and one execution only. The timeout test advances beyond the original 30-minute deadline and checks the real `SIGKILL`, failed receipt, absent output and refusal to pass on rerun.
+
+SQLite's WAL checkpoints survive ordinary process crashes. This runner does not promise survival of host power loss, filesystem corruption, arbitrary child-process crashes, or uninterrupted multi-hour operation. Accelerated tests cover time-dependent state transitions; they do not simulate hours of memory growth, resource exhaustion, network failures or agent reasoning. Long real workloads still need task-specific smoke tests and monitoring. Quality comes from meaningful checks, independent review, and evidence-based parent decisions, not from elapsed runtime or the durable library alone.
