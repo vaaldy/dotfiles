@@ -49,6 +49,38 @@ Only ready phases are admitted. Ready phases run concurrently when their canonic
 
 Use a separate worktree for each writer. Canonical-path overlap checks cover only this run, not other agents, other run directories, shared databases, ports, Docker volumes or services. Before launching, the parent reserves those resources and coordinates with their owning agents. Across a stack, request changes from each repository owner using an exact interface contract, reproducer, expected artifact, and dependency/version gate. Wait for the owner's verified revision or published artifact, pin its identity, then run consumer and end-to-end tests. A library test alone does not prove application integration. Keep integration as a final phase depending on every required lane.
 
+## Repository ownership and cross-repo handoffs
+
+Before launch, the supervisor records an ownership map in the approved goal and phase
+briefs. Each entry names the absolute repository/worktree, its owning agent, allowed
+source paths, exclusions, phase ID, prerequisite versions and required artifacts. Use
+`phase.cwd` for the owning worktree and `dependsOn` for actual execution dependencies;
+the runner does not infer repository ownership from a task name or chat history.
+
+| Scope | Owner and write boundary | Evidence required by the next owner |
+| --- | --- | --- |
+| Producer/library repository | Its owning parent prepares changes; one writer in its worktree. Other repository agents are read-only there. | Exact interface contract, reproducer, source revision or artifact hash, and producer test results. |
+| Consumer/application repository | Its owning parent changes only the consumer after the producer gate passes. | Pin and verify the actual loaded producer identity, then run consumer tests; a producer test pass alone is insufficient. |
+| Integration worktree | One named owner; the supervisor owns final acceptance and explicitly authorized integration/commits. | Full-stack checks against pinned code, inputs and dependencies, plus remaining acceptance conditions. |
+
+Ask the owning agent for upstream changes rather than patching another repository
+from a consumer lane. Reserve shared ports, databases, containers and mutable artifacts
+separately: this run's canonical worktree checks do not coordinate other runs or
+sessions. Children receive compact evidence contracts, not assumed access to the
+parent's Nunc memory. Follow shared `APPEND_SYSTEM.md` for model routing and parent
+versus prepared-command runner responsibilities.
+
+A durable `PASS` is a command/evidence verdict, not an automatic domain-correctness or
+commit decision. The review command must wait for the actual independent verdict and
+fail on unresolved required findings. The scheduler admits ready dependencies after
+`PASS`; it does not wait for a later supervisor chat response. Any parent acceptance
+needed before downstream execution must be enforced inside an approved review or
+prerequisite phase command. `dependsOn` does not establish that the consumer actually
+uses the verified upstream build; the consumer's validation must check that identity.
+
+The simulation-loop diagrams show this split and the recovery path in
+[`flow.md`](../../skills/simulation-improvement-loop/references/flow.md#5-durable-execution--repo-ownership-checkpoints-and-recovery).
+
 ## Recovery and evidence
 
 The durable task progresses through `prepare -> launch -> monitor -> gate`. The launch intent is persisted before spawning. The worker takes an exclusive claim before running commands; a launch marker is never automatically cleared. SQLite is the authoritative completion ledger. A receipt must be written and hash-verified before the completion transaction. Missing exits, nonzero exits, signals, missing artifacts, invalid input identity and failed receipt writes cannot produce success.
