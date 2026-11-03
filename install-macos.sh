@@ -44,13 +44,14 @@ for config in "$here"/yazi/.config/yazi/*; do
 done
 
 pi="$here/pi/.pi/agent"
-link "$pi/settings.json" "$HOME/.pi/agent/settings.json"
+if [[ ! -f "$HOME/.pi/agent/settings.json" || -L "$HOME/.pi/agent/settings.json" ]]; then
+  link "$pi/settings.json" "$HOME/.pi/agent/settings.json"
+fi
 link "$pi/APPEND_SYSTEM.md" "$HOME/.pi/agent/APPEND_SYSTEM.md"
 if [[ ! -f "$HOME/.pi/agent/models.json" || -L "$HOME/.pi/agent/models.json" ]]; then
   link "$pi/models.json" "$HOME/.pi/agent/models.json"
 fi
 link "$pi/compact-transcript.json" "$HOME/.pi/agent/compact-transcript.json"
-link "$pi/model-system-prompt/qwen.md" "$HOME/.pi/agent/model-system-prompt/qwen.md"
 link "$pi/prompts/simulation-improvement-loop.md" "$HOME/.pi/agent/prompts/simulation-improvement-loop.md"
 link "$pi/skills/simulation-improvement-loop" "$HOME/.pi/agent/skills/simulation-improvement-loop"
 for extension in "$pi"/extensions/*.ts; do

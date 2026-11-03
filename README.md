@@ -28,17 +28,34 @@ graph TD
 
 Keep the frontier parent on design, implementation, analysis scripts, and final acceptance. Delegate only when authorized, using fresh context and compact, independently verifiable tasks.
 
-- **DGX Qwen** (`dgx/nvidia/Qwen3.8-Flash-Next-FP4-Local`): first choice when configured and reachable; keep its endpoint configuration local.
-- **OpenCode Go**: otherwise use DeepSeek v4.1 Flash (`opencode-go/deepseek-v4.1-flash`) for scouting, extraction, data analysis, research, and review, or Qwen 3.8 Flash (`opencode-go/qwen3.8-flash`) for prepared runner jobs, not open-ended coding. Select the model explicitly for each launch; the shared settings default remains DeepSeek.
-- **Luna** (`openai-codex/gpt-6-luna` when available): explicit fallback for tasks the low-cost tier cannot handle. Report failed launches before retrying or switching; OpenRouter is not required.
+- **Haiku** (`opencode-go/claude-haiku-5-5`): default for prepared runner jobs and explicitly scoped small changes, not open-ended coding.
+- **Terra** (`openai-codex/gpt-6.1-terra`): longer-horizon tasks, scouting, research, analysis, and review.
 
-These replace Gemini 3.8 Flash as the preferred low-cost subagent tier. Routing instructions live in `pi/.pi/agent/APPEND_SYSTEM.md`; defaults and role overrides live in `pi/.pi/agent/settings.json`.
+Select the model explicitly for each launch. Qwen and DeepSeek remain available for manual experimentation. Report failed launches before retrying or switching; OpenRouter is not required. Routing instructions live in `pi/.pi/agent/APPEND_SYSTEM.md`; defaults and role overrides live in `pi/.pi/agent/settings.json`.
 
-Use the DCTwin α_rec/EC pattern: the parent prepares and checks the runner and analysis code, then asynchronous runners execute independent lanes with exact commands, isolated output paths, expected artifacts, and exit-status checks. Permit only explicitly scoped surgical fixes; escalate design changes. Default to at most three lanes, with larger fanouts explicitly budgeted and no overlapping source writers. The parent verifies artifacts and synthesizes results.
+The parent prepares and checks the runner and analysis code, then asynchronous runners execute independent lanes with exact commands, isolated output paths, expected artifacts, and exit-status checks. Permit only explicitly scoped surgical fixes; escalate design changes. Default to at most three lanes, with larger fanouts explicitly budgeted and no overlapping source writers. The parent verifies artifacts and synthesizes results.
+
+## Durable execution
+
+The [durable phase runner](pi/.pi/agent/scripts/durable-loop/README.md) executes approved commands with SQLite recovery, per-phase quality gates, and sequential or isolated parallel scheduling. It resumes existing work instead of blindly replaying commands after interruption. The shared `APPEND_SYSTEM.md` defines ownership and acceptance rules.
 
 ## Setup
 
 Check out the branch for the current machine.
+
+### Nunc
+
+Nunc replaces Smart Compact. Its local package must be built on each machine before starting Pi:
+
+```sh
+git clone https://github.com/tefx/pi-nunc.git ~/.pi/agent/local-packages/pi-nunc
+cd ~/.pi/agent/local-packages/pi-nunc
+git checkout 53310dc
+npm ci --ignore-scripts --no-audit --no-fund
+npm run build
+```
+
+Use `/nunc details` in Pi to check that it loaded. The separate compact-transcript package changes display, not context compaction.
 
 ### Linux (`pc` / `laptop`)
 

@@ -45,13 +45,13 @@ Before implementation, inspect relevant Markdown in the repository-root `prompts
 
 `prompts/` may be an independently tracked nested Git repository. Never stage or commit its contents through the parent repository, and never add a Git remote to it.
 
-## Low-cost subagent routing
+## Subagent routing
 
-Prefer DGX Qwen (`dgx/nvidia/Qwen3.8-Flash-Next-FP4-Local`) when configured and reachable; otherwise use OpenCode Go subagents: DeepSeek v4.1 Flash (`opencode-go/deepseek-v4.1-flash`) or Qwen 3.8 Flash (`opencode-go/qwen3.8-flash`) at medium thinking. Use DeepSeek for repository mapping, broad reading, extraction, comparison, data analysis, web research, and independent review; prefer Qwen for bounded runner tasks. Keep this routing policy shared across systems; DGX endpoint configuration stays local. These replace Gemini 3.8 Flash as the preferred low-cost tier.
+Prefer `opencode-go/claude-haiku-5-5` for bounded execution of prepared scripts and commands, including explicitly scoped small modifications. Prefer `openai-codex/gpt-6.1-terra` for longer-horizon work, repository mapping, research, analysis, and independent review. Select the model explicitly for each launch. Qwen and DeepSeek remain available for manual experimentation, not default routing. Keep this policy shared across systems.
 
-The frontier parent designs and writes the implementation, run scripts, analysis, and checks first. Give Qwen runners exact commands, inputs, isolated output paths, expected artifacts, and exit-status checks. Runners execute and monitor prepared code, verify outputs, and make only explicitly authorized surgical fixes; escalate design changes or unclear failures to the parent. Do not hand runners open-ended implementation or analysis design.
+The frontier parent designs and writes the implementation, run scripts, analysis, and checks first. Give Haiku runners exact commands, inputs, isolated output paths, expected artifacts, and exit-status checks. Runners execute and monitor prepared code, verify outputs, and make only explicitly authorized surgical fixes; escalate design changes or unclear failures to the parent. Do not hand runners open-ended implementation or analysis design.
 
-Use Luna as an explicit fallback when the low-cost tier cannot handle the task. Prefer `openai-codex/gpt-6-luna` when available; do not depend on OpenRouter availability. Report provider or launch failures and stop the lane before an explicit retry or fallback; never silently switch models or execution modes.
+Report provider or launch failures and stop the lane before an explicit retry or fallback; never silently switch models or execution modes. Do not depend on OpenRouter availability.
 
 Construct each task as an independent evidence contract:
 
@@ -68,4 +68,16 @@ Use fresh context. Avoid passing narrative conversation history, reflective assi
 
 Launch children asynchronously, including `researcher` and `evidence-auditor` so their pi-web-access tools load in the detached child runtime. Use at most three independent lanes by default, and do not create overlapping scouts. Larger runner fanouts need an explicit task-specific budget and disjoint output ownership; keep one source writer per cwd/worktree.
 
-The main Sol/Astra agent owns synthesis, architectural decisions, source mutation, test design, conflict resolution, and final acceptance. Runners may execute prepared tests; the parent checks their commands, exit statuses, and artifacts. Treat child output as evidence, not authority.
+The main Sol/Terra/Astra agent owns synthesis, architectural decisions, source mutation, test design, conflict resolution, and final acceptance. Runners may execute prepared tests; the parent checks their commands, exit statuses, and artifacts. Treat child output as evidence, not authority.
+
+## Durable phase workflows
+
+For authorized multi-hour or multi-phase execution, read `~/.pi/agent/scripts/durable-loop/README.md` and use its checkpointed runner for prepared commands. Keep working through the approved scope until the goal is verified or a concrete authority/resource blocker remains; a progress update is not a handoff or a reason to stop.
+
+Define a bounded, immutable plan with a goal, exclusions, acceptance criteria, hypothesis and falsification criterion per phase. Default to sequential dependencies (`p1 -> p2 -> p3`); run independent phases in parallel only with explicit dependencies, isolated worktrees and resource ownership. Admit dependent work when its prerequisites pass, without blocking on unrelated lanes. Stop new admissions on a failed gate, preserve the failed evidence and let active lanes settle.
+
+Each phase must execute implementation, validation, a meaningful negative control and independent review. Record exact code/input/dependency identities and machine-readable evidence. A zero exit from an agent launcher is not a review verdict. Reject metric fitting, unsupported completion claims and unrelated cleanup; preserve valid changes even when an agreed metric does not improve. The parent owns final integration tests and acceptance.
+
+Use one writer per worktree. Coordinate cross-repository interface changes with the owning agent using an exact contract, reproducer, artifact identity and version gate; verify the consumer and full stack after the upstream artifact is available. Reserve shared databases, ports, containers and other mutable resources separately. Durable execution does not grant broader authority, permit automatic provider fallback, or authorize commits/pushes by itself.
+
+Resume the same run after supervisor interruption. Never relaunch an uncertain external command, reset a persisted deadline, treat missing exit evidence as success, or advance after a receipt/ledger failure. Preserve sealed artifacts; corrections require a new phase/run or additive supplement. Inspect live workers and external jobs before recovering stale locks. Compaction and long runtime do not substitute for persisted evidence or prove quality.

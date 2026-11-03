@@ -56,11 +56,13 @@ The active policy is `pi/.pi/agent/APPEND_SYSTEM.md`, under **Jev completion che
 3. Before the final response, the main agent sends one batched `or_jev_evaluate` request containing the request, acceptance criteria/exclusions, relevant diff/source context, actual test commands/results, and proposed completion claims. Omit secrets and data not permitted for the provider.
 4. Ask narrow questions tied to hunk/claim IDs: unrelated behavior, unnecessary abstractions/dependencies, removed safeguards, and claims unsupported by the evidence. Do not ask Jev to certify correctness or infer unseen code/test results.
 5. Inspect flags and uncertainty manually. Fix confirmed issues and rerun affected tests; do not automatically revert changes or retry until a favorable score appears. Identify material post-check changes as not Jev-rechecked.
-6. Report the actual verification and residual limitations. An unavailable/erroring Jev call, or evidence too large to fit without losing necessary context, falls back to manual review with disclosure—not a fabricated pass.
+6. Report the actual verification and residual limitations. An unavailable/erroring Jev call, or evidence too large to fit without losing necessary context, falls back to manual review with disclosure, not a fabricated pass.
 
 This checkpoint is advisory, not a new approval gate. Deterministic safety checks, test outcomes, user permissions, and any required independent review remain authoritative. Do not add per-tool-call checks, automatic model switching, or context deletion. Child agents return diffs and test evidence; the main agent owns the single aggregate check at the completion barrier.
 
-Evaluate usefulness on real tasks before adding enforcement: record actionable flags versus false alarms, missed issues found later, request cost, and added elapsed time. Do not assume Jev is faster or adopt universal probability cutoffs without measurements.
+## Durable execution
+
+The implemented command runner and its recovery contract live in [`durable-loop/README.md`](../../pi/.pi/agent/scripts/durable-loop/README.md). Use it for an authorized bounded plan with sequential dependencies or isolated parallel lanes. Read the current routing and ownership policy in `APPEND_SYSTEM.md` before applying the historical proposals below.
 
 ## Phase 1.1 — Automate repository documentation setup
 
