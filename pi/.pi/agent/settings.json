@@ -36,6 +36,15 @@
       },
       "openai-codex/gpt-6.1-terra": {
         "reserveTokens": 650000
+      },
+      "google/gemini-4-argon": {
+        "reserveTokens": 648576
+      },
+      "openrouter/google/gemini-4-argon": {
+        "reserveTokens": 648576
+      },
+      "opencode-go/gemini-4-argon": {
+        "reserveTokens": 648576
       }
     }
   },

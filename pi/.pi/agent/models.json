@@ -1,5 +1,20 @@
 {
   "providers": {
+    "google": {
+      "modelOverrides": {
+        "gemini-4-argon": { "contextWindow": 1048576 }
+      }
+    },
+    "openrouter": {
+      "modelOverrides": {
+        "google/gemini-4-argon": { "contextWindow": 1048576 }
+      }
+    },
+    "opencode-go": {
+      "modelOverrides": {
+        "gemini-4-argon": { "contextWindow": 1048576 }
+      }
+    },
     "openai-codex": {
       "modelOverrides": {
         "gpt-5.6-luna": {
