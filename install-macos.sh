@@ -86,11 +86,11 @@ for (const model of Object.keys(shared.compaction.modelOverrides)) {
   const window = models.providers?.[model.slice(0, separator)]?.modelOverrides?.[model.slice(separator + 1)]?.contextWindow;
   const existing = local.compaction.modelOverrides[model] ?? {};
   const keep = existing.keepRecentTokens ?? local.compaction.keepRecentTokens ?? 20000;
-  if (!Number.isSafeInteger(window) || window <= 250000 || keep >= 250000) {
+  if (!Number.isSafeInteger(window) || window <= 400000 || keep >= 400000) {
     console.warn(`Keeping existing compaction settings for ${model}: a compatible explicit context window and retention are required.`);
     continue;
   }
-  local.compaction.modelOverrides[model] = { ...existing, reserveTokens: window - 250000 };
+  local.compaction.modelOverrides[model] = { ...existing, reserveTokens: window - 400000 };
 }
 const source = entry => typeof entry === 'string' ? entry : entry.source;
 const nunc = '~/.pi/agent/local-packages/pi-nunc';

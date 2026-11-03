@@ -66,8 +66,8 @@ elif [[ "$*" == *"status --porcelain" ]]; then printf '%s' "\${TEST_NUNC_DIRTY:-
             nunc: { memoryTools: true, toolResultCleanup: false },
             compaction: { enabled: false, modelOverrides: {
               'local/model': { reserveTokens: 30000 },
-              'openai-codex/gpt-6.1-sol': { reserveTokens: scenario === 'private' ? 800000 : 16384, keepRecentTokens: 12345 },
-              ...(scenario === 'private' ? { 'openai-codex/gpt-6.1-terra': { reserveTokens: 250000 } } : {}),
+              'openai-codex/gpt-6.1-sol': { reserveTokens: scenario === 'private' ? 650000 : 16384, keepRecentTokens: 12345 },
+              ...(scenario === 'private' ? { 'openai-codex/gpt-6.1-terra': { reserveTokens: 100000 } } : {}),
             } },
             packages: ['npm:local-only', '~/.pi/agent/local-packages/pi-nunc'],
           });
