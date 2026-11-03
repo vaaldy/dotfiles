@@ -6,6 +6,9 @@ font_family = "Iosevka"
 categories = false
 compact = true
 
+[brightness]
+enable_ddcutil = true
+
 [bar.default]
 margin_edge = 12
 margin_ends = 12

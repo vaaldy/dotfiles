@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "theme": "tokyo-night",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-terra",
@@ -69,5 +69,14 @@
     }
   },
   "hideThinkingBlock": true,
-  "outputPad": 0
+  "outputPad": 0,
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-mcp-adapter@2.33.0\",\"scope\":\"user\"}": "2.33.0",
+    "{\"source\":\"npm:pi-smart-compact\",\"scope\":\"user\"}": "10.7.3",
+    "{\"source\":\"npm:pi-studio\",\"scope\":\"user\"}": "0.11.8",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.84.0",
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.46.0",
+    "{\"source\":\"npm:pi-annotate\",\"scope\":\"user\"}": "0.5.2",
+    "{\"source\":\"npm:pi-jev\",\"scope\":\"user\"}": "0.8.0"
+  }
 }
