@@ -79,7 +79,7 @@ prerequisite phase command. `dependsOn` does not establish that the consumer act
 uses the verified upstream build; the consumer's validation must check that identity.
 
 The simulation-loop diagrams show this split and the recovery path in
-[`flow.md`](../../skills/simulation-improvement-loop/references/flow.md#5-durable-execution--repo-ownership-checkpoints-and-recovery).
+[`flow.md`](../../skills/simulation-improvement-loop/references/flow.md#5-pi-durable-execution--repo-ownership-checkpoints-and-recovery).
 
 ## Recovery and evidence
 

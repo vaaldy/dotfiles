@@ -206,9 +206,11 @@ Details: `references/domain-gate.md` (gates and the nonsense test),
 `references/orchestration.md` (lanes and integration), `references/evidence.md` (logs and
 hashing), `references/roles.md` (roles, routing, briefs).
 
-## 5. Durable execution — repo ownership, checkpoints and recovery
+## 5. Pi Durable execution — repo ownership, checkpoints and recovery
 
-For an authorized multi-phase loop, use `~/.pi/agent/scripts/durable-loop/runner.mjs`.
+This section specifically uses **Pi Durable (`@earendil-works/pi-durable`)**, not a
+generic background-job loop. Our shared `~/.pi/agent/scripts/durable-loop/runner.mjs`
+wraps Pi Durable's `Harness` and SQLite storage to execute the approved phase plan.
 The supervisor prepares the bounded, immutable plan and exact commands first. Haiku
 executes prepared work; Terra provides independent review. The negative-control command
 succeeds only after proving the validator rejects a known-bad variant. Neither a
@@ -249,7 +251,7 @@ its own prerequisites pass without waiting for unrelated lanes. The supervisor s
 reserves shared ports, databases, containers and mutable artifacts. Worktree overlap
 checks apply within one run; they do not coordinate other sessions or run directories.
 
-### Execute commands through the persisted state machine
+### Execute commands through Pi Durable's persisted state machine
 
 ```mermaid
 flowchart TD
@@ -262,7 +264,7 @@ flowchart TD
     MO["monitor<br/>observe the existing worker"]
     GA["gate<br/>verify input, exits, deadline and artifacts"]
     RE["Seal and verify receipt.json"]
-    DB["Commit verdict to state.sqlite"]
+    DB["Pi Durable commits verdict to state.sqlite"]
     SG{"Supervisor domain gate<br/>correct mechanism and integration evidence?"}
     C["COMMIT-CORRECT or COMMIT-IMPROVED<br/>integrate, recheck and commit only if authorized"]
     N["Runner admits ready dependent phases<br/>only configured gates are enforced"]
@@ -302,7 +304,7 @@ node "$HOME/.pi/agent/scripts/durable-loop/runner.mjs" run \
   /absolute/private/run-dir /absolute/approved-plan.json
 ```
 
-### Recover the same run after interruption or compaction
+### Recover the same Pi Durable run after interruption or compaction
 
 Nunc retains the goal, remaining acceptance conditions, exact run/plan/worktree paths,
 artifact identities and last observed status. That status is a dated observation, not
